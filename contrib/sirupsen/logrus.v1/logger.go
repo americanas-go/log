@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/americanas-go/log"
-	logredis "github.com/jpfaria/logrus-redis-hook"
 	"github.com/ravernkoh/cwlogsfmt"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -19,28 +18,12 @@ type ctxKey string
 
 const key ctxKey = "ctxfields"
 
-func NewLoggerWithFormatter(formatter logrus.Formatter, options *Options) log.Logger {
+func NewLoggerWithFormatter(formatter logrus.Formatter, options *Options, hooks ...logrus.Hook) log.Logger {
 
 	lLogger := new(logrus.Logger)
 
-	if options.Redis.Enabled {
-
-		hookConfig := logredis.HookConfig{
-			Host:   options.Redis.Host,
-			Key:    options.Redis.Key,
-			Format: options.Redis.Format,
-			App:    options.Redis.App,
-			Port:   options.Redis.Port,
-			DB:     options.Redis.DB,
-		}
-
-		hook, err := logredis.NewHook(hookConfig)
-		if err == nil {
-			lLogger.AddHook(hook)
-		} else {
-			lLogger.Errorf("logredis error: %q", err)
-		}
-
+	for _, hook := range hooks {
+		lLogger.AddHook(hook)
 	}
 
 	var fileHandler *lumberjack.Logger
@@ -83,9 +66,9 @@ func NewLoggerWithFormatter(formatter logrus.Formatter, options *Options) log.Lo
 
 }
 
-func NewLogger(options *Options) log.Logger {
+func NewLogger(options *Options, hooks ...logrus.Hook) log.Logger {
 	formatter := getFormatter(options)
-	return NewLoggerWithFormatter(formatter, options)
+	return NewLoggerWithFormatter(formatter, options, hooks...)
 }
 
 func getLogLevel(level string) logrus.Level {
