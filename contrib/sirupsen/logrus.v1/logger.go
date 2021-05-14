@@ -40,6 +40,8 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 	lLogger := new(logrus.Logger)
 
 	for _, hook := range options.Hooks {
+		// init level hooks
+		lLogger.Hooks = logrus.LevelHooks{}
 		lLogger.AddHook(hook)
 	}
 
@@ -140,6 +142,8 @@ func logLevel(level string) logrus.Level {
 		return logrus.ErrorLevel
 	case "TRACE":
 		return logrus.TraceLevel
+	case "PANIC":
+		return logrus.PanicLevel
 	default:
 		return logrus.InfoLevel
 	}

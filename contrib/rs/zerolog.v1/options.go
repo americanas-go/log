@@ -10,8 +10,9 @@ type Options struct {
 		Level string
 	}
 	File struct {
-		Enabled bool
 		// enable/disable file logging
+		Enabled bool
+		// log level
 		Level string
 		// log path
 		Path string
