@@ -9,20 +9,37 @@ import (
 	"strings"
 
 	"github.com/americanas-go/log"
-	"github.com/ravernkoh/cwlogsfmt"
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1/formatter/text"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type ctxKey string
 
-const key ctxKey = "ctxfields"
+const (
+	key                   ctxKey = "ctxfields"
+	defaultConsoleEnabled        = true
+	defaultConsoleLevel          = "INFO"
+	defaultFileEnabled           = false
+	defaultFileLevel             = "INFO"
+	defaultFilePath              = "/tmp"
+	defaultFileName              = "application.log"
+	defaultFileMaxSize           = 100
+	defaultFileCompress          = true
+	defaultFileMaxAge            = 28
+	defaultTimeFormat            = "2006/01/02 15:04:05.000"
+)
 
-func NewLoggerWithFormatter(formatter logrus.Formatter, options *Options, hooks ...logrus.Hook) log.Logger {
+func NewLogger(option ...Option) log.Logger {
+	options := options(option)
+	return NewLoggerWithOptions(options)
+}
+
+func NewLoggerWithOptions(options *Options) log.Logger {
 
 	lLogger := new(logrus.Logger)
 
-	for _, hook := range hooks {
+	for _, hook := range options.Hooks {
 		lLogger.AddHook(hook)
 	}
 
@@ -52,10 +69,10 @@ func NewLoggerWithFormatter(formatter logrus.Formatter, options *Options, hooks 
 		lLogger.SetOutput(os.Stdout)
 	}
 
-	level := getLogLevel(options.Console.Level)
+	level := logLevel(options.Console.Level)
 	lLogger.SetLevel(level)
 
-	lLogger.SetFormatter(formatter)
+	lLogger.SetFormatter(options.Formatter)
 
 	logger := &logger{
 		logger: lLogger,
@@ -63,15 +80,53 @@ func NewLoggerWithFormatter(formatter logrus.Formatter, options *Options, hooks 
 
 	log.NewLogger(logger)
 	return logger
-
 }
 
-func NewLogger(options *Options, hooks ...logrus.Hook) log.Logger {
-	formatter := getFormatter(options)
-	return NewLoggerWithFormatter(formatter, options, hooks...)
+func defaultOptions() *Options {
+	return &Options{
+		Formatter: text.New(),
+		Time: struct {
+			Format string
+		}{
+			Format: defaultTimeFormat,
+		},
+		Console: struct {
+			Enabled bool
+			Level   string
+		}{
+			Enabled: defaultConsoleEnabled,
+			Level:   defaultConsoleLevel,
+		},
+		File: struct {
+			Enabled  bool
+			Level    string
+			Path     string
+			Name     string
+			MaxSize  int
+			Compress bool
+			MaxAge   int
+		}{
+			Enabled:  defaultFileEnabled,
+			Level:    defaultFileLevel,
+			Path:     defaultFilePath,
+			Name:     defaultFileName,
+			MaxSize:  defaultFileMaxSize,
+			Compress: defaultFileCompress,
+			MaxAge:   defaultFileMaxAge,
+		},
+	}
 }
 
-func getLogLevel(level string) logrus.Level {
+func options(option []Option) *Options {
+	options := defaultOptions()
+
+	for _, o := range option {
+		o(options)
+	}
+	return options
+}
+
+func logLevel(level string) logrus.Level {
 
 	switch level {
 
@@ -89,48 +144,6 @@ func getLogLevel(level string) logrus.Level {
 		return logrus.InfoLevel
 	}
 
-}
-
-func getFormatter(options *Options) logrus.Formatter {
-
-	var formatter logrus.Formatter
-
-	switch options.Formatter {
-
-	case "JSON":
-
-		fmt := &logrus.JSONFormatter{
-			FieldMap: logrus.FieldMap{
-				logrus.FieldKeyTime:  "date",
-				logrus.FieldKeyLevel: "log_level",
-				logrus.FieldKeyMsg:   "log_message",
-			},
-		}
-
-		fmt.TimestampFormat = options.Time.Format
-
-		formatter = fmt
-
-	case "AWS_CLOUD_WATCH":
-
-		formatter = &cwlogsfmt.CloudWatchLogsFormatter{
-			PrefixFields:     []string{"RequestId"},
-			QuoteEmptyFields: true,
-		}
-
-	default:
-
-		fmt := &logrus.TextFormatter{
-			FullTimestamp:          true,
-			DisableLevelTruncation: true,
-		}
-		fmt.TimestampFormat = options.Time.Format
-
-		formatter = fmt
-
-	}
-
-	return formatter
 }
 
 type logger struct {
