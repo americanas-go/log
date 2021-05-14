@@ -18,21 +18,60 @@ Supported libs
 
 Examples
 --------
-### Simple Logging Example
+### Logging Example
 
 ```go
 package main
 
 import (
+	"context"
+
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	// start logrus
-	loggerLogrus := logrus.NewLogger()
-	loggerLogrus.Infof("Hi, I'm Logrus")
+	ctx := context.Background()
+
+	// example use logrus
+	logger := logrus.NewLogger()
+
+	logger = logger.WithField("main_field", "example")
+
+	logger.Info("main method.")
+	// Output: INFO[2021/05/14 17:15:04.757] main method. main_field=example
+
+	ctx = logger.ToContext(ctx)
+
+	foo(ctx)
+
+	withoutContext()
 }
-// Output: INFO[2021/05/14 16:22:17.634] Hi, I'm Logrus
+
+func foo(ctx context.Context) {
+	logger := log.FromContext(ctx)
+
+	logger = logger.WithField("foo_field", "example")
+	logger.Infof("%s method.", "foo")
+	// Output: INFO[2021/05/14 17:15:04.757] foo method. foo_field=example main_field=example
+
+	ctx = logger.ToContext(ctx)
+	bar(ctx)
+}
+
+func bar(ctx context.Context) {
+	logger := log.FromContext(ctx)
+
+	logger = logger.WithField("bar_field", "example")
+
+	logger.Infof("%s method.", "bar")
+	// Output: INFO[2021/05/14 17:15:04.757] bar method. bar_field=example foo_field=example main_field=example
+}
+
+func withoutContext() {
+	log.Info("withoutContext method")
+	// Output: INFO[2021/05/14 17:15:04.757] withoutContext method
+}
 ```
 
 Contributing
