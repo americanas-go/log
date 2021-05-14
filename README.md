@@ -52,4 +52,4 @@ Any submitted issue which disrespect one or more guidelines above, will be disca
 
 <hr>
 
-Released under the [MIT License](LICENSE.txt).
+Released under the [MIT License](LICENSE).
