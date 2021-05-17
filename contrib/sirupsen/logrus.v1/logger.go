@@ -78,6 +78,7 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 
 	logger := &logger{
 		logger: lLogger,
+		fields: log.Fields{},
 	}
 
 	log.NewLogger(logger)
@@ -155,14 +156,6 @@ type logger struct {
 	fields log.Fields
 }
 
-func (l *logger) Printf(format string, args ...interface{}) {
-	l.logger.Printf(format, args...)
-}
-
-func (l *logger) Tracef(format string, args ...interface{}) {
-	l.logger.Tracef(format, args...)
-}
-
 func (l *logger) Trace(args ...interface{}) {
 	l.logger.Trace(args...)
 }
@@ -183,22 +176,20 @@ func (l *logger) Error(args ...interface{}) {
 	l.logger.Error(args...)
 }
 
-func (l *logger) Fatal(args ...interface{}) {
-	l.logger.Fatal(args...)
-}
-
 func (l *logger) Panic(args ...interface{}) {
 	l.logger.Panic(args...)
 }
 
-func (l *logger) WithField(key string, value interface{}) log.Logger {
+func (l *logger) Fatal(args ...interface{}) {
+	l.logger.Fatal(args...)
+}
 
-	entry := l.logger.WithField(key, value)
+func (l *logger) Printf(format string, args ...interface{}) {
+	l.logger.Printf(format, args...)
+}
 
-	return &logEntry{
-		entry:  entry,
-		fields: convertToFields(entry.Data),
-	}
+func (l *logger) Tracef(format string, args ...interface{}) {
+	l.logger.Tracef(format, args...)
 }
 
 func (l *logger) Debugf(format string, args ...interface{}) {
@@ -217,12 +208,22 @@ func (l *logger) Errorf(format string, args ...interface{}) {
 	l.logger.Errorf(format, args...)
 }
 
+func (l *logger) Panicf(format string, args ...interface{}) {
+	l.logger.Panicf(format, args...)
+}
+
 func (l *logger) Fatalf(format string, args ...interface{}) {
 	l.logger.Fatalf(format, args...)
 }
 
-func (l *logger) Panicf(format string, args ...interface{}) {
-	l.logger.Fatalf(format, args...)
+func (l *logger) WithField(key string, value interface{}) log.Logger {
+
+	entry := l.logger.WithField(key, value)
+
+	return &logEntry{
+		entry:  entry,
+		fields: convertToFields(entry.Data),
+	}
 }
 
 func (l *logger) WithFields(fields log.Fields) log.Logger {
@@ -242,7 +243,7 @@ func (l *logger) WithTypeOf(obj interface{}) log.Logger {
 	})
 }
 
-func (l *logger) GetFields() log.Fields {
+func (l *logger) Fields() log.Fields {
 	return l.fields
 }
 
@@ -262,14 +263,6 @@ func (l *logger) FromContext(ctx context.Context) log.Logger {
 type logEntry struct {
 	entry  *logrus.Entry
 	fields log.Fields
-}
-
-func (l *logEntry) Printf(format string, args ...interface{}) {
-	l.entry.Printf(format, args...)
-}
-
-func (l *logEntry) Tracef(format string, args ...interface{}) {
-	l.entry.Tracef(format, args...)
 }
 
 func (l *logEntry) Trace(args ...interface{}) {
@@ -310,8 +303,20 @@ func (l *logEntry) WithField(key string, value interface{}) log.Logger {
 	}
 }
 
+func (l *logEntry) Fields() log.Fields {
+	return l.fields
+}
+
 func (l *logEntry) Output() io.Writer {
 	return l.entry.Logger.Out
+}
+
+func (l *logEntry) Printf(format string, args ...interface{}) {
+	l.entry.Printf(format, args...)
+}
+
+func (l *logEntry) Tracef(format string, args ...interface{}) {
+	l.entry.Tracef(format, args...)
 }
 
 func (l *logEntry) Debugf(format string, args ...interface{}) {
@@ -330,17 +335,19 @@ func (l *logEntry) Errorf(format string, args ...interface{}) {
 	l.entry.Errorf(format, args...)
 }
 
+func (l *logEntry) Panicf(format string, args ...interface{}) {
+	l.entry.Panicf(format, args...)
+}
+
 func (l *logEntry) Fatalf(format string, args ...interface{}) {
 	l.entry.Fatalf(format, args...)
 }
 
-func (l *logEntry) Panicf(format string, args ...interface{}) {
-	l.entry.Fatalf(format, args...)
-}
-
 func (l *logEntry) WithFields(fields log.Fields) log.Logger {
+	entry := l.entry.WithFields(convertToLogrusFields(fields))
 	return &logEntry{
-		entry: l.entry.WithFields(convertToLogrusFields(fields)),
+		entry:  entry,
+		fields: convertToFields(entry.Data),
 	}
 }
 

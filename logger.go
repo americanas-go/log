@@ -48,4 +48,6 @@ type Logger interface {
 	FromContext(ctx context.Context) Logger
 
 	Output() io.Writer
+
+	Fields() Fields
 }

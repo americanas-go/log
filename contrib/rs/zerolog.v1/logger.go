@@ -13,6 +13,10 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+type ctxKey string
+
+const key ctxKey = "ctxfields"
+
 func NewLogger(options *Options) log.Logger {
 	writer := getWriter(options)
 	if writer == nil {
@@ -35,6 +39,7 @@ func NewLogger(options *Options) log.Logger {
 	logger := &logger{
 		logger: zerologger,
 		writer: writer,
+		fields: log.Fields{},
 	}
 
 	log.NewLogger(logger)
@@ -44,6 +49,7 @@ func NewLogger(options *Options) log.Logger {
 type logger struct {
 	logger zerolog.Logger
 	writer io.Writer
+	fields log.Fields
 }
 
 func getLogLevel(level string) zerolog.Level {
@@ -195,12 +201,12 @@ func (l *logger) WithField(key string, value interface{}) log.Logger {
 	newField[key] = value
 
 	newLogger := l.logger.With().Fields(newField).Logger()
-	return &logger{newLogger, l.writer}
+	return &logger{newLogger, l.writer, newField}
 }
 
 func (l *logger) WithFields(fields log.Fields) log.Logger {
 	newLogger := l.logger.With().Fields(fields).Logger()
-	return &logger{newLogger, l.writer}
+	return &logger{newLogger, l.writer, fields}
 }
 
 func (l *logger) WithTypeOf(obj interface{}) log.Logger {
@@ -211,6 +217,10 @@ func (l *logger) WithTypeOf(obj interface{}) log.Logger {
 		"reflect.type.name":    t.Name(),
 		"reflect.type.package": t.PkgPath(),
 	})
+}
+
+func (l *logger) Fields() log.Fields {
+	return l.fields
 }
 
 func (l *logger) Output() io.Writer {
@@ -227,6 +237,13 @@ func (l *logger) FromContext(ctx context.Context) log.Logger {
 	if zerologger.GetLevel() == zerolog.Disabled {
 		return l
 	}
-
-	return &logger{*zerologger, l.writer}
+	rawFields := ctx.Value(key)
+	fields := log.Fields{}
+	if rawFields != nil {
+		switch v := rawFields.(type) {
+		case log.Fields:
+			fields = v
+		}
+	}
+	return &logger{*zerologger, l.writer, fields}
 }

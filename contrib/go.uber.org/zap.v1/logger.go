@@ -219,12 +219,12 @@ func (l *zapLogger) WithTypeOf(obj interface{}) log.Logger {
 	})
 }
 
-func (l *zapLogger) GetFields() log.Fields {
+func (l *zapLogger) Fields() log.Fields {
 	return l.fields
 }
 
 func (l *zapLogger) ToContext(ctx context.Context) context.Context {
-	fields := l.GetFields()
+	fields := l.Fields()
 
 	ctxFields := fieldsFromContext(ctx)
 
