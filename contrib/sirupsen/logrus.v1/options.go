@@ -3,9 +3,9 @@ package logrus
 import "github.com/sirupsen/logrus"
 
 type Options struct {
-	Formatter logrus.Formatter
+	Formatter logrus.Formatter // formatter TEXT/JSON/CLOUDWATCH
 	Time      struct {
-		Format string
+		Format string // date and time formats
 	}
 	Console struct {
 		Enabled bool   // enable/disable console logging
@@ -14,8 +14,8 @@ type Options struct {
 	Hooks []logrus.Hook
 	File  struct {
 		Enabled  bool   // enable/disable file logging
-		Level    string // log level
-		Path     string // log path
+		Level    string // file log level
+		Path     string // file log path
 		Name     string // log filename
 		MaxSize  int    // log file max size (MB)
 		Compress bool   // enabled/disable file compress
