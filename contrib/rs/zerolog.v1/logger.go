@@ -13,6 +13,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+// NewLogger constructs a new Logger from provided Options.
 func NewLogger(options *Options) log.Logger {
 	writer := getWriter(options)
 	if writer == nil {
