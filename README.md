@@ -12,13 +12,12 @@ Installation
 
 Supported libs
 --------
-* [Logrus](https://github.com/sirupsen/logrus) - Is a structured logger for Go (golang), completely API compatible with the standard library logger.
-* [Zap](https://github.com/uber-go/zap) - Blazing fast, structured, leveled logging in Go.
-* [Zerolog](https://github.com/rs/zerolog) - The zerolog package provides a fast and simple logger dedicated to JSON output.
+* [Logrus](contrib/sirupsen/logrus.v1/README.md) - Is a structured logger for Go (golang), completely API compatible with the standard library logger.
+* [Zap](contrib/go.uber.org/zap.v1/README.md) - Blazing fast, structured, leveled logging in Go.
+* [Zerolog](contrib/rs/zerolog.v1/README.md) - Provides a fast and simple logger dedicated to JSON output.
 
-Examples
+Example
 --------
-### Logging Example
 
 ```go
 package main
@@ -33,13 +32,13 @@ import (
 func main() {
 	ctx := context.Background()
 
-	// example use logrus
+	//example use logrus
 	logger := logrus.NewLogger()
 
 	logger = logger.WithField("main_field", "example")
 
 	logger.Info("main method.")
-	// Output: INFO[2021/05/14 17:15:04.757] main method. main_field=example
+	//output: INFO[2021/05/14 17:15:04.757] main method. main_field=example
 
 	ctx = logger.ToContext(ctx)
 
@@ -53,7 +52,7 @@ func foo(ctx context.Context) {
 
 	logger = logger.WithField("foo_field", "example")
 	logger.Infof("%s method.", "foo")
-	// Output: INFO[2021/05/14 17:15:04.757] foo method. foo_field=example main_field=example
+	//output: INFO[2021/05/14 17:15:04.757] foo method. foo_field=example main_field=example
 
 	ctx = logger.ToContext(ctx)
 	bar(ctx)
@@ -65,12 +64,12 @@ func bar(ctx context.Context) {
 	logger = logger.WithField("bar_field", "example")
 
 	logger.Infof("%s method.", "bar")
-	// Output: INFO[2021/05/14 17:15:04.757] bar method. bar_field=example foo_field=example main_field=example
+	//output: INFO[2021/05/14 17:15:04.757] bar method. bar_field=example foo_field=example main_field=example
 }
 
 func withoutContext() {
 	log.Info("withoutContext method")
-	// Output: INFO[2021/05/14 17:15:04.757] withoutContext method
+	//output: INFO[2021/05/14 17:15:04.757] withoutContext method
 }
 ```
 
