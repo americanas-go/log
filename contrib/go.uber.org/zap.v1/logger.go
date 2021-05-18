@@ -174,7 +174,7 @@ func (l *zapLogger) Printf(format string, args ...interface{}) {
 }
 
 func (l *zapLogger) Tracef(format string, args ...interface{}) {
-	l.sugaredLogger.Debug(args...)
+	l.sugaredLogger.Debugf(format, args...)
 }
 
 func (l *zapLogger) Trace(args ...interface{}) {
