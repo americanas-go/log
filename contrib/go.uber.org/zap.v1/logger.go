@@ -16,10 +16,29 @@ import (
 
 type ctxKey string
 
-const key ctxKey = "ctxfields"
+const (
+	key                     ctxKey = "ctxfields"
+	defaultConsoleFormatter        = "TEXT"
+	defaultConsoleEnabled          = true
+	defaultConsoleLevel            = "INFO"
+	defaultFileEnabled             = false
+	defaultFileLevel               = "INFO"
+	defaultFilePath                = "/tmp"
+	defaultFileName                = "application.log"
+	defaultFileMaxSize             = 100
+	defaultFileCompress            = true
+	defaultFileMaxAge              = 28
+	defaultFileFormatter           = "TEXT"
+)
 
-// NewLogger constructs a new Logger from provided Options.
-func NewLogger(options *Options) log.Logger {
+// NewLogger constructs a new Logger from provided variadic Option.
+func NewLogger(option ...Option) log.Logger {
+	options := options(option)
+	return NewLoggerWithOptions(options)
+}
+
+// NewLoggerWithOptions constructs a new Logger from provided Options.
+func NewLoggerWithOptions(options *Options) log.Logger {
 
 	cores := []zapcore.Core{}
 	var writers []io.Writer
@@ -67,6 +86,48 @@ func NewLogger(options *Options) log.Logger {
 	return newlogger
 }
 
+func defaultOptions() *Options {
+	return &Options{
+		Console: struct {
+			Enabled   bool
+			Level     string
+			Formatter string
+		}{
+			Enabled:   defaultConsoleEnabled,
+			Level:     defaultConsoleLevel,
+			Formatter: defaultConsoleFormatter,
+		},
+		File: struct {
+			Enabled   bool
+			Level     string
+			Path      string
+			Name      string
+			MaxSize   int
+			Compress  bool
+			MaxAge    int
+			Formatter string
+		}{
+			Enabled:   defaultFileEnabled,
+			Level:     defaultFileLevel,
+			Path:      defaultFilePath,
+			Name:      defaultFileName,
+			MaxSize:   defaultFileMaxSize,
+			Compress:  defaultFileCompress,
+			MaxAge:    defaultFileMaxAge,
+			Formatter: defaultFileFormatter,
+		},
+	}
+}
+
+func options(option []Option) *Options {
+	options := defaultOptions()
+
+	for _, o := range option {
+		o(options)
+	}
+	return options
+}
+
 func newSugaredLogger(core zapcore.Core) *zap.SugaredLogger {
 	return zap.New(core,
 		zap.AddCallerSkip(2),
@@ -75,22 +136,15 @@ func newSugaredLogger(core zapcore.Core) *zap.SugaredLogger {
 }
 
 func getEncoder(format string) zapcore.Encoder {
-
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	switch format {
-
 	case "JSON":
-
 		return zapcore.NewJSONEncoder(encoderConfig)
-
 	default:
-
 		return zapcore.NewConsoleEncoder(encoderConfig)
-
 	}
-
 }
 
 func getZapLevel(level string) zapcore.Level {
@@ -124,7 +178,7 @@ func (l *zapLogger) Printf(format string, args ...interface{}) {
 
 // Tracef uses (*zap.SugaredLogger).Debugf to log a templated message.
 func (l *zapLogger) Tracef(format string, args ...interface{}) {
-	l.sugaredLogger.Debug(args...)
+	l.sugaredLogger.Debugf(format, args...)
 }
 
 // Trace uses (*zap.SugaredLogger).Debug to log a message.
@@ -208,7 +262,7 @@ func (l *zapLogger) Fatalf(format string, args ...interface{}) {
 
 // Panicf uses (*zap.SugaredLogger).Panif to log a templated message and panic.
 func (l *zapLogger) Panicf(format string, args ...interface{}) {
-	l.sugaredLogger.Fatalf(format, args...)
+	l.sugaredLogger.Panicf(format, args...)
 }
 
 // WithFields constructs a new Logger with l.fields and the provided fields.

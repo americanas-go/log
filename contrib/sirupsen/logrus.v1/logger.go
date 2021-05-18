@@ -30,7 +30,7 @@ const (
 	defaultTimeFormat            = "2006/01/02 15:04:05.000"
 )
 
-// NewLogger constructs a new Logger from provided Option vararg.
+// NewLogger constructs a new Logger from provided variadic Option.
 func NewLogger(option ...Option) log.Logger {
 	options := options(option)
 	return NewLoggerWithOptions(options)
