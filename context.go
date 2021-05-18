@@ -2,10 +2,6 @@ package log
 
 import "context"
 
-// constant
-const key = "log_fields"
-
-// ToContext calls concrete Logger.ToContext().
 func ToContext(ctx context.Context) context.Context {
 	return l.ToContext(ctx)
 }
@@ -13,19 +9,4 @@ func ToContext(ctx context.Context) context.Context {
 // FromContext calls concrete Logger.FromContext().
 func FromContext(ctx context.Context) Logger {
 	return l.FromContext(ctx)
-}
-
-func fieldsFromContext(ctx context.Context) Fields {
-
-	var fields Fields
-
-	if ctx == nil {
-		return Fields{}
-	}
-
-	if param := ctx.Value(key); param != nil {
-		fields = ctx.Value(key).(Fields)
-	}
-
-	return fields
 }
