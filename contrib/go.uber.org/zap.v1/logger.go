@@ -31,11 +31,13 @@ const (
 	defaultFileFormatter           = "TEXT"
 )
 
+// NewLogger constructs a new Logger from provided variadic Option.
 func NewLogger(option ...Option) log.Logger {
 	options := options(option)
 	return NewLoggerWithOptions(options)
 }
 
+// NewLoggerWithOptions constructs a new Logger from provided Options.
 func NewLoggerWithOptions(options *Options) log.Logger {
 
 	cores := []zapcore.Core{}
@@ -169,42 +171,52 @@ type zapLogger struct {
 	core          zapcore.Core
 }
 
+// Printf uses (*zap.SugaredLogger).Infof to log a templated message.
 func (l *zapLogger) Printf(format string, args ...interface{}) {
 	l.sugaredLogger.Infof(format, args...)
 }
 
+// Tracef uses (*zap.SugaredLogger).Debugf to log a templated message.
 func (l *zapLogger) Tracef(format string, args ...interface{}) {
 	l.sugaredLogger.Debugf(format, args...)
 }
 
+// Trace uses (*zap.SugaredLogger).Debug to log a message.
 func (l *zapLogger) Trace(args ...interface{}) {
 	l.sugaredLogger.Debug(args...)
 }
 
+// Debug uses (*zap.SugaredLogger).Debug to log a message.
 func (l *zapLogger) Debug(args ...interface{}) {
 	l.sugaredLogger.Debug(args...)
 }
 
+// Info uses (*zap.SugaredLogger).Info to log a message.
 func (l *zapLogger) Info(args ...interface{}) {
 	l.sugaredLogger.Info(args...)
 }
 
+// Warn uses (*zap.SugaredLogger).Warn to log a message.
 func (l *zapLogger) Warn(args ...interface{}) {
 	l.sugaredLogger.Warn(args...)
 }
 
+// Error uses (*zap.SugaredLogger).Error to log a message.
 func (l *zapLogger) Error(args ...interface{}) {
 	l.sugaredLogger.Error(args...)
 }
 
+// Fatal uses (*zap.SugaredLogger).Fatal to log a message and call os.Exit(1).
 func (l *zapLogger) Fatal(args ...interface{}) {
 	l.sugaredLogger.Fatal(args...)
 }
 
+// Panic uses (*zap.SugaredLogger).Panic to log a message and panic.
 func (l *zapLogger) Panic(args ...interface{}) {
 	l.sugaredLogger.Panic(args...)
 }
 
+// WithField constructs a new Logger with l.fields and provided key and value field.
 func (l *zapLogger) WithField(key string, value interface{}) log.Logger {
 	newFields := log.Fields{}
 	for k, v := range l.fields {
@@ -218,34 +230,42 @@ func (l *zapLogger) WithField(key string, value interface{}) log.Logger {
 	return &zapLogger{newLogger, newFields, l.writers, l.core}
 }
 
+// Output returns a Writer that represents the zap writers.
 func (l *zapLogger) Output() io.Writer {
 	return io.MultiWriter(l.writers...)
 }
 
+// Debugf uses (*zap.SugaredLogger).Debugf to log a templated message.
 func (l *zapLogger) Debugf(format string, args ...interface{}) {
 	l.sugaredLogger.Debugf(format, args...)
 }
 
+// Infof uses (*zap.SugaredLogger).Infof to log a templated message.
 func (l *zapLogger) Infof(format string, args ...interface{}) {
 	l.sugaredLogger.Infof(format, args...)
 }
 
+// Warnf uses (*zap.SugaredLogger).Warnf to log a templated message.
 func (l *zapLogger) Warnf(format string, args ...interface{}) {
 	l.sugaredLogger.Warnf(format, args...)
 }
 
+// Errorf uses (*zap.SugaredLogger).Errorf to log a templated message.
 func (l *zapLogger) Errorf(format string, args ...interface{}) {
 	l.sugaredLogger.Errorf(format, args...)
 }
 
+// Fatalf uses (*zap.SugaredLogger).Fatalf to log a templated message and call os.Exit(1).
 func (l *zapLogger) Fatalf(format string, args ...interface{}) {
 	l.sugaredLogger.Fatalf(format, args...)
 }
 
+// Panicf uses (*zap.SugaredLogger).Panif to log a templated message and panic.
 func (l *zapLogger) Panicf(format string, args ...interface{}) {
 	l.sugaredLogger.Panicf(format, args...)
 }
 
+// WithFields constructs a new Logger with l.fields and the provided fields.
 func (l *zapLogger) WithFields(fields log.Fields) log.Logger {
 	newFields := log.Fields{}
 
@@ -262,6 +282,7 @@ func (l *zapLogger) WithFields(fields log.Fields) log.Logger {
 	return &zapLogger{newLogger, newFields, l.writers, l.core}
 }
 
+// WithTypeOf adds type and package information fields.
 func (l *zapLogger) WithTypeOf(obj interface{}) log.Logger {
 
 	t := reflect.TypeOf(obj)
@@ -276,6 +297,7 @@ func (l *zapLogger) Fields() log.Fields {
 	return l.fields
 }
 
+// ToContext returns a copy of ctx in which its fields are added to those of l.
 func (l *zapLogger) ToContext(ctx context.Context) context.Context {
 	fields := l.Fields()
 
@@ -292,6 +314,7 @@ func (l *zapLogger) ToContext(ctx context.Context) context.Context {
 	return context.WithValue(ctx, key, ctxFields)
 }
 
+// FromContext returns a Logger from ctx.
 func (l *zapLogger) FromContext(ctx context.Context) log.Logger {
 	fields := fieldsFromContext(ctx)
 	return l.WithFields(fields)

@@ -5,8 +5,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Option represents a CloudWatch formatter option.
 type Option func(formatter *cwlogsfmt.CloudWatchLogsFormatter)
 
+// NewFormatter returns a new logrus formatter for CloudWatch.
 func NewFormatter(options ...Option) logrus.Formatter {
 	fmt := &cwlogsfmt.CloudWatchLogsFormatter{
 		PrefixFields:     []string{"RequestId"},
@@ -21,18 +23,21 @@ func NewFormatter(options ...Option) logrus.Formatter {
 	return fmt
 }
 
+// WithPrefixFields sets formatter's prefix fields to value.
 func WithPrefixFields(value []string) Option {
 	return func(formatter *cwlogsfmt.CloudWatchLogsFormatter) {
 		formatter.PrefixFields = value
 	}
 }
 
+// WithDisableSorting sets formatter's disable sorting to value.
 func WithDisableSorting(value bool) Option {
 	return func(formatter *cwlogsfmt.CloudWatchLogsFormatter) {
 		formatter.DisableSorting = value
 	}
 }
 
+// WithQuoteEmptyFields sets formatter's quote empty fields to value.
 func WithQuoteEmptyFields(value bool) Option {
 	return func(formatter *cwlogsfmt.CloudWatchLogsFormatter) {
 		formatter.QuoteEmptyFields = value
