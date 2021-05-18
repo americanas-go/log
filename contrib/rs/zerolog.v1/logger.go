@@ -15,9 +15,26 @@ import (
 
 type ctxKey string
 
-const key ctxKey = "ctxfields"
+const (
+	key                   ctxKey = "ctxfields"
+	defaultFormatter             = "TEXT"
+	defaultConsoleEnabled        = true
+	defaultConsoleLevel          = "INFO"
+	defaultFileEnabled           = false
+	defaultFileLevel             = "INFO"
+	defaultFilePath              = "/tmp"
+	defaultFileName              = "application.log"
+	defaultFileMaxSize           = 100
+	defaultFileCompress          = true
+	defaultFileMaxAge            = 28
+)
 
-func NewLogger(options *Options) log.Logger {
+func NewLogger(option ...Option) log.Logger {
+	options := options(option)
+	return NewLoggerWithOptions(options)
+}
+
+func NewLoggerWithOptions(options *Options) log.Logger {
 	writer := getWriter(options)
 	if writer == nil {
 		zerologger := zerolog.Nop()
@@ -44,6 +61,45 @@ func NewLogger(options *Options) log.Logger {
 
 	log.NewLogger(logger)
 	return logger
+}
+
+func defaultOptions() *Options {
+	return &Options{
+		Formatter: defaultFormatter,
+		Console: struct {
+			Enabled bool
+			Level   string
+		}{
+			Enabled: defaultConsoleEnabled,
+			Level:   defaultConsoleLevel,
+		},
+		File: struct {
+			Enabled  bool
+			Level    string
+			Path     string
+			Name     string
+			MaxSize  int
+			Compress bool
+			MaxAge   int
+		}{
+			Enabled:  defaultFileEnabled,
+			Level:    defaultFileLevel,
+			Path:     defaultFilePath,
+			Name:     defaultFileName,
+			MaxSize:  defaultFileMaxSize,
+			Compress: defaultFileCompress,
+			MaxAge:   defaultFileMaxAge,
+		},
+	}
+}
+
+func options(option []Option) *Options {
+	options := defaultOptions()
+
+	for _, o := range option {
+		o(options)
+	}
+	return options
 }
 
 type logger struct {
@@ -91,9 +147,8 @@ func getWriter(options *Options) io.Writer {
 
 		if options.Console.Enabled {
 			return io.MultiWriter(writer, fileHandler)
-		} else {
-			return fileHandler
 		}
+		return fileHandler
 	} else if options.Console.Enabled {
 		return writer
 	}
@@ -111,7 +166,7 @@ func (l *logger) Tracef(format string, args ...interface{}) {
 
 func (l *logger) Trace(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -124,7 +179,7 @@ func (l *logger) Debugf(format string, args ...interface{}) {
 
 func (l *logger) Debug(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -137,7 +192,7 @@ func (l *logger) Infof(format string, args ...interface{}) {
 
 func (l *logger) Info(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -150,7 +205,7 @@ func (l *logger) Warnf(format string, args ...interface{}) {
 
 func (l *logger) Warn(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -163,7 +218,7 @@ func (l *logger) Errorf(format string, args ...interface{}) {
 
 func (l *logger) Error(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -176,7 +231,7 @@ func (l *logger) Fatalf(format string, args ...interface{}) {
 
 func (l *logger) Fatal(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -189,7 +244,7 @@ func (l *logger) Panicf(format string, args ...interface{}) {
 
 func (l *logger) Panic(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
