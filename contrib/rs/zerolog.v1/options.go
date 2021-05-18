@@ -2,13 +2,12 @@ package zerolog
 
 type Options struct {
 	Formatter string // formatter TEXT/JSON
+	Level     string // log level
 	Console   struct {
-		Enabled bool   // enable/disable console logging
-		Level   string // console log level
+		Enabled bool // enable/disable console logging
 	}
 	File struct {
 		Enabled  bool   // enable/disable file logging
-		Level    string // file log level
 		Path     string // file log path
 		Name     string // file log filename
 		MaxSize  int    // file log file max size (MB)
@@ -31,21 +30,15 @@ func WithConsoleEnabled(value bool) Option {
 	}
 }
 
-func WithConsoleLevel(value string) Option {
+func WithLevel(value string) Option {
 	return func(options *Options) {
-		options.Console.Level = value
+		options.Level = value
 	}
 }
 
 func WithFileEnabled(value bool) Option {
 	return func(options *Options) {
 		options.File.Enabled = value
-	}
-}
-
-func WithFileLevel(value string) Option {
-	return func(options *Options) {
-		options.File.Level = value
 	}
 }
 
