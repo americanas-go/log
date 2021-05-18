@@ -373,10 +373,6 @@ func (l *logEntry) FromContext(ctx context.Context) log.Logger {
 func toContext(ctx context.Context, fields log.Fields) context.Context {
 	ctxFields := fieldsFromContext(ctx)
 
-	if ctxFields == nil {
-		ctxFields = map[string]interface{}{}
-	}
-
 	for k, v := range fields {
 		ctxFields[k] = v
 	}

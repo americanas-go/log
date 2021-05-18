@@ -747,3 +747,138 @@ func (s *LoggerSuite) TestLoggerEntryFromContext() {
 		})
 	}
 }
+
+func (s *LoggerSuite) Test_toContext() {
+	fields := log.Fields{
+		"ID":   "12",
+		"Name": "Stockton",
+	}
+	tt := []struct {
+		name string
+		in   context.Context
+		want func() context.Context
+	}{
+		{
+			name: "when fields are not previously present on context",
+			in:   context.Background(),
+			want: func() context.Context {
+				return context.WithValue(context.Background(), key, fields)
+			},
+		},
+		{
+			name: "when fields are previously present on context",
+			in: context.WithValue(context.Background(), key, log.Fields{
+				"Position": "Point guard",
+			}),
+			want: func() context.Context {
+				previousFields := log.Fields{
+					"Position": "Point guard",
+				}
+				ctx := context.WithValue(context.Background(), key, previousFields)
+				newFields := log.Fields{}
+				for k, v := range previousFields {
+					newFields[k] = v
+				}
+				for k, v := range fields {
+					newFields[k] = v
+				}
+				return context.WithValue(ctx, key, newFields)
+			},
+		},
+	}
+	for _, t := range tt {
+		s.Run(t.name, func() {
+			got := toContext(t.in, fields)
+			want := t.want()
+			s.Assert().True(reflect.DeepEqual(got, want), "got %v | want %v", got, want)
+		})
+	}
+}
+
+func (s *LoggerSuite) Test_fieldsFromContext() {
+	fields := log.Fields{
+		"ID":   "12",
+		"Name": "Stockton",
+	}
+	tt := []struct {
+		name string
+		in   context.Context
+		want log.Fields
+	}{
+		{
+			name: "when fields are not previously present on context",
+			in:   context.Background(),
+			want: log.Fields{},
+		},
+		{
+			name: "when fields are present on context",
+			in:   context.WithValue(context.Background(), key, fields),
+			want: fields,
+		},
+		{
+			name: "when context is nil",
+			in:   nil,
+			want: log.Fields{},
+		},
+	}
+	for _, t := range tt {
+		s.Run(t.name, func() {
+			got := fieldsFromContext(t.in)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+		})
+	}
+}
+
+func (s *LoggerSuite) Test_convertToLogrusFields() {
+
+	tt := []struct {
+		name string
+		in   log.Fields
+		want logrus.Fields
+	}{
+		{
+			name: "success converting to logrus fields",
+			in: log.Fields{
+				"ID":   "12",
+				"Name": "Stockton",
+			},
+			want: logrus.Fields{
+				"ID":   "12",
+				"Name": "Stockton",
+			},
+		},
+	}
+	for _, t := range tt {
+		s.Run(t.name, func() {
+			got := convertToLogrusFields(t.in)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+		})
+	}
+}
+
+func (s *LoggerSuite) Test_convertToFields() {
+
+	tt := []struct {
+		name string
+		in   logrus.Fields
+		want log.Fields
+	}{
+		{
+			name: "success converting to fields",
+			in: logrus.Fields{
+				"ID":   "12",
+				"Name": "Stockton",
+			},
+			want: log.Fields{
+				"ID":   "12",
+				"Name": "Stockton",
+			},
+		},
+	}
+	for _, t := range tt {
+		s.Run(t.name, func() {
+			got := convertToFields(t.in)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+		})
+	}
+}
