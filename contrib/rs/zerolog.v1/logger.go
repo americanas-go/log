@@ -29,11 +29,13 @@ const (
 	defaultFileMaxAge            = 28
 )
 
+// NewLogger constructs a new Logger from provided variadic Option.
 func NewLogger(option ...Option) log.Logger {
 	options := options(option)
 	return NewLoggerWithOptions(options)
 }
 
+// NewLoggerWithOptions constructs a new Logger from provided Options.
 func NewLoggerWithOptions(options *Options) log.Logger {
 	writer := getWriter(options)
 	if writer == nil {
