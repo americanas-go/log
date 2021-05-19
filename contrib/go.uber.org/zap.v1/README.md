@@ -1,128 +1,144 @@
 zap.v1
 =======
 
-Examples
---------
-### Simple Logging Example
-
+The package accepts a default constructor:
 ```go
-package main
-
-import (
-	"context"
-
-	"github.com/americanas-go/log"
-	"github.com/americanas-go/log/contrib/go.uber.org/zap.v1"
+// default constructor
+logger := zap.NewLogger()
+```
+Or a constructor with multiple parameters using optional pattern:
+```go
+// multiple optional parameters constructor
+logger := zap.NewLogger(
+	zap.WithConsoleFormatter("TEXT"),
+	zap.WithConsoleEnabled(true),
+	zap.WithFilePath("/tmp"),
+	...
 )
-
-func main() {
-	ctx := context.Background()
-
-	//example use zap
-	logger := zap.NewLogger()
-
-	logger = logger.WithField("main_field", "example")
-
-	logger.Info("main method.")
-	//output: 2021-05-17T15:22:04.126-0300	info	runtime/proc.go:225	main method.	{"main_field": "example"}
-
-	ctx = logger.ToContext(ctx)
-
-	foo(ctx)
-
-	withoutContext()
-}
-
-func foo(ctx context.Context) {
-	logger := log.FromContext(ctx)
-
-	logger = logger.WithField("foo_field", "example")
-	logger.Infof("%s method.", "foo")
-	//output: 2021-05-17T15:22:04.126-0300	info	contrib/main.go:24	foo method.	{"main_field": "example", "foo_field": "example"}
-
-	ctx = logger.ToContext(ctx)
-	bar(ctx)
-}
-
-func bar(ctx context.Context) {
-	logger := log.FromContext(ctx)
-
-	logger = logger.WithField("bar_field", "example")
-
-	logger.Infof("%s method.", "bar")
-	//output: 2021-05-17T15:22:04.126-0300	info	contrib/main.go:37	bar method.	{"bar_field": "example", "main_field": "example", "foo_field": "example"}
-}
-
-func withoutContext() {
-	log.Info("withoutContext method")
-	//output: 2021-05-17T15:22:04.126-0300	info	contrib/main.go:50	withoutContext method
-}
 ```
 
-### Logging With Options Example
+This is the list of all the configuration functions supported by package:
 
+#### Console
+WithConsoleEnabled sets whether the standard logger output will be in console. Accepts multi writing (console and file).
+##### Enabled
 ```go
-package main
+// console enable true
+logger := zap.NewLogger(zap.WithConsoleEnabled(true))
 
-import (
-	"context"
+// console enable false
+logger := zap.NewLogger(zap.WithConsoleEnabled(false))
+```
 
-	"github.com/americanas-go/log"
-	"github.com/americanas-go/log/contrib/go.uber.org/zap.v1"
-)
+#### Level
+WithConsoleLevel sets console logging level to any of these options below on the standard logger.
+```go
+// log level DEBUG
+logger := zap.NewLogger(zap.WithConsoleLevel("DEBUG"))
 
-func main() {
-	ctx := context.Background()
+// log level WARN
+logger := zap.NewLogger(zap.WithConsoleLevel("WARN"))
 
-	//example use zap with options
-	logger := zap.NewLogger(withConsoleFormatter(), withConsoleLevel())
+// log level FATAL
+logger := zap.NewLogger(zap.WithConsoleLevel("FATAL"))
 
-	logger = logger.WithField("main_field", "example")
+// log level ERROR
+logger := zap.NewLogger(zap.WithConsoleLevel("ERROR"))
 
-	logger.Info("main method.")
-	//output: {"level":"info","ts":"2021-05-17T15:26:57.624-0300","caller":"runtime/proc.go:225","msg":"main method.","main_field":"example"}
+// log level TRACE
+logger := zap.NewLogger(zap.WithConsoleLevel("TRACE"))
 
-	ctx = logger.ToContext(ctx)
+// log level INFO
+logger := zap.NewLogger(zap.WithConsoleLevel("INFO"))
+```
 
-	foo(ctx)
+##### Formatter
+WithConsoleFormatter sets output format of the console logs. Using TEXT/JSON.
+```go
+// text formatter
+logger := zap.NewLogger(zap.WithConsoleFormatter("TEXT"))
 
-	withoutContext()
-}
+// json formatter
+logger := zap.NewLogger(zap.WithConsoleFormatter("JSON"))
+```
 
-func foo(ctx context.Context) {
-	logger := log.FromContext(ctx)
+#### File
+WithFileEnabled sets whether the standard logger output will be in file. Accepts multi writing (file and console).
+##### Enabled
+```go
+// file enable true
+logger := zap.NewLogger(zap.WithFileEnabled(true))
 
-	logger = logger.WithField("foo_field", "example")
-	logger.Infof("%s method.", "foo")
-	//output: {"level":"info","ts":"2021-05-17T15:26:57.624-0300","caller":"contrib/main.go:23","msg":"foo method.","main_field":"example","foo_field":"example"}
+// file enable false
+logger := zap.NewLogger(zap.WithFileEnabled(false))
+```
 
-	ctx = logger.ToContext(ctx)
-	bar(ctx)
-}
+#### Level
+WithFileLevel sets level logging to any of these options below on the standard logger.
+```go
+// log level DEBUG
+logger := zap.NewLogger(zap.WithFileLevel("DEBUG"))
 
-func bar(ctx context.Context) {
-	logger := log.FromContext(ctx)
+// log level WARN
+logger := zap.NewLogger(zap.WithFileLevel("WARN"))
 
-	logger = logger.WithField("bar_field", "example")
+// log level FATAL
+logger := zap.NewLogger(zap.WithFileLevel("FATAL"))
 
-	logger.Infof("%s method.", "bar")
-	//output: {"level":"info","ts":"2021-05-17T15:26:57.624-0300","caller":"contrib/main.go:36","msg":"bar method.","main_field":"example","foo_field":"example","bar_field":"example"}
-}
+// log level ERROR
+logger := zap.NewLogger(zap.WithFileLevel("ERROR"))
 
-func withoutContext() {
-	log.Info("withoutContext method")
-	//output: {"level":"info","ts":"2021-05-17T15:26:57.624-0300","caller":"contrib/main.go:49","msg":"withoutContext method"}
-}
+// log level TRACE
+logger := zap.NewLogger(zap.WithFileLevel("TRACE"))
 
-func withConsoleFormatter() zap.Option {
-	return func(o *zap.Options) {
-		o.Console.Formatter = "JSON"
-	}
-}
+// log level INFO
+logger := zap.NewLogger(zap.WithFileLevel("INFO"))
+```
 
-func withConsoleLevel() zap.Option {
-	return func(o *zap.Options) {
-		o.Console.Level = "DEBUG"
-	}
-}
+##### Path
+WithFilePath sets the path where the file will be saved.
+```go
+// file path
+logger := zap.NewLogger(zap.WithFilePath("/tmp"))
+```
+
+##### Name
+WithFileName sets the name of the file.
+```go
+// file name
+logger := zap.NewLogger(zap.WithFileName("application.log"))
+```
+
+##### MaxSize
+WithFileMaxSize sets the maximum size in megabytes of the log file. It defaults to 100 megabytes.
+```go
+// file max size
+logger := zap.NewLogger(zap.WithFileMaxSize(100))
+```
+
+##### Compress
+WithFileCompress sets whether the log files should be compressed.
+```go
+// file compress true
+logger := zap.NewLogger(zap.WithFileCompress(true))
+
+// file compress false
+logger := zap.NewLogger(zap.WithFileCompress(false))
+```
+
+##### MaxAge
+WithFileMaxAge sets the maximum number of days to retain old log files based on the timestamp encoded in their filename.
+```go
+// file max age
+logger := zap.NewLogger(zap.WithFileMaxAge(10))
+```
+
+##### Formatter
+WithFileFormatter sets output format of the file logs. Using TEXT/JSON.
+```go
+// text formatter
+logger := zap.NewLogger(zap.WithFileFormatter("TEXT"))
+
+// json formatter
+logger := zap.NewLogger(zap.WithFileFormatter("JSON"))
 ```
