@@ -1,129 +1,148 @@
 logrus.v1
 =======
 
-Examples
---------
-### Simple Logging Example
-
+The package accepts a default constructor:
 ```go
-package main
+// default constructor
+logger := logrus.NewLogger()
+```
+Or a constructor with multiple parameters using optional pattern:
+```go
+// multiple optional parameters constructor
+logger := logrus.NewLogger(
+	logrus.WithFormatter(json.New())
+	logrus.WithConsoleEnabled(true),
+	logrus.WithFilePath("/tmp"),
+	...
+)
+```
 
+This is the list of all the configuration functions supported by package:
+
+#### Formatter
+WithFormatter sets output format of the logs. Using TEXT/JSON/CLOUDWATCH.
+```go
 import (
-	"context"
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1/formatter/text"
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1/formatter/json"
+    "github.com/americanas-go/log/contrib/sirupsen/logrus.v1/formatter/cloudwatch"
+    ...
+)
+
+// text formatter
+logger := logrus.NewLogger(logrus.WithFormatter(text.New()))
+
+// json formatter
+logger := logrus.NewLogger(logrus.WithFormatter(json.New()))
+
+// cloudwatch formatter
+logger := logrus.NewLogger(logrus.WithFormatter(cloudwatch.New()))
+```
+
+#### Time
+WithTimeFormat sets the format used for marshaling timestamps.
+##### Format
+```go
+// time format
+logger := logrus.NewLogger(logrus.WithTimeFormat("2006/01/02 15:04:05.000"))
+```
+
+#### Console
+WithConsoleEnabled sets whether the standard logger output will be in console. Accepts multi writing (console and file).
+##### Enabled
+```go
+// console enable true
+logger := logrus.NewLogger(logrus.WithConsoleEnabled(true))
+
+// console enable false
+logger := logrus.NewLogger(logrus.WithConsoleEnabled(false))
+```
+
+##### Level
+WithConsoleLevel sets console logging level to any of these options below on the standard logger.
+```go
+// log level DEBUG
+logger := logrus.NewLogger(logrus.WithConsoleLevel("DEBUG"))
+
+// log level WARN
+logger := logrus.NewLogger(logrus.WithConsoleLevel("WARN"))
+
+// log level FATAL
+logger := logrus.NewLogger(logrus.WithConsoleLevel("FATAL"))
+
+// log level ERROR
+logger := logrus.NewLogger(logrus.WithConsoleLevel("ERROR"))
+
+// log level TRACE
+logger := logrus.NewLogger(logrus.WithConsoleLevel("TRACE"))
+
+// log level INFO
+logger := logrus.NewLogger(logrus.WithConsoleLevel("INFO"))
+```
+
+#### Hook
+WithHook sets a hook to be fired when logging on the logging levels.
+```go
+import (
+	"log/syslog"
 
 	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+	syshooklg "github.com/sirupsen/logrus/hooks/syslog"
 )
 
 func main() {
-	ctx := context.Background()
-
-	//example use logrus
-	logger := logrus.NewLogger()
-
-	logger = logger.WithField("main_field", "example")
-
-	logger.Info("main method.")
-	//output: INFO[2021/05/14 17:15:04.757] main method. main_field=example
-
-	ctx = logger.ToContext(ctx)
-
-	foo(ctx)
-
-	withoutContext()
-}
-
-func foo(ctx context.Context) {
-	logger := log.FromContext(ctx)
-
-	logger = logger.WithField("foo_field", "example")
-	logger.Infof("%s method.", "foo")
-	//output: INFO[2021/05/14 17:15:04.757] foo method. foo_field=example main_field=example
-
-	ctx = logger.ToContext(ctx)
-	bar(ctx)
-}
-
-func bar(ctx context.Context) {
-	logger := log.FromContext(ctx)
-
-	logger = logger.WithField("bar_field", "example")
-
-	logger.Infof("%s method.", "bar")
-	//output: INFO[2021/05/14 17:15:04.757] bar method. bar_field=example foo_field=example main_field=example
-}
-
-func withoutContext() {
-	log.Info("withoutContext method")
-	//output: INFO[2021/05/14 17:15:04.757] withoutContext method
+	hook, _ := syshooklg.NewSyslogHook("udp", "localhost:514", syslog.LOG_INFO, "")
+    logger := logrus.NewLogger(logrus.WithHook(hook))
+    ...
 }
 ```
 
-### Logging With Options Example
-
+#### File
+WithFileEnabled sets whether the standard logger output will be in file. Accepts multi writing (file and console).
+##### Enabled
 ```go
-package main
+// file enable true
+logger := logrus.NewLogger(logrus.WithFileEnabled(true))
 
-import (
-	"context"
+// file enable false
+logger := logrus.NewLogger(logrus.WithFileEnabled(false))
+```
 
-	"github.com/americanas-go/log"
-	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
-	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1/formatter/json"
-)
+##### Path
+WithFilePath sets the path where the file will be saved.
+```go
+// file path
+logger := logrus.NewLogger(logrus.WithFilePath("/tmp"))
+```
 
-func main() {
-	ctx := context.Background()
+##### Name
+WithFileName sets the name of the file.
+```go
+// file name
+logger := logrus.NewLogger(logrus.WithFileName("application.log"))
+```
 
-	//example use logrus with options
-	logger := logrus.NewLogger(withFormatter(), withConsoleLevel())
+##### MaxSize
+WithFileMaxSize sets the maximum size in megabytes of the log file. It defaults to 100 megabytes.
+```go
+// file max size
+logger := logrus.NewLogger(logrus.WithFileMaxSize(100))
+```
 
-	logger = logger.WithField("main_field", "example")
+##### Compress
+WithFileCompress sets whether the log files should be compressed.
+```go
+// file compress true
+logger := logrus.NewLogger(logrus.WithFileCompress(true))
 
-	logger.Info("main method.")
-	//output: {"level":"info","main_field":"example","msg":"main method.","time":"2021/05/17 14:16:12.514"}
+// file compress false
+logger := logrus.NewLogger(logrus.WithFileCompress(false))
+```
 
-	ctx = logger.ToContext(ctx)
-
-	foo(ctx)
-
-	withoutContext()
-}
-
-func foo(ctx context.Context) {
-	logger := log.FromContext(ctx)
-
-	logger = logger.WithField("foo_field", "example")
-	logger.Infof("%s method.", "foo")
-	//output: {"foo_field":"example","level":"info","main_field":"example","msg":"foo method.","time":"2021/05/17 14:16:12.514"}
-
-	ctx = logger.ToContext(ctx)
-	bar(ctx)
-}
-
-func bar(ctx context.Context) {
-	logger := log.FromContext(ctx)
-
-	logger = logger.WithField("bar_field", "example")
-
-	logger.Infof("%s method.", "bar")
-	//output: {"bar_field":"example","foo_field":"example","level":"info","main_field":"example","msg":"bar method.","time":"2021/05/17 14:16:12.514"}
-}
-
-func withoutContext() {
-	log.Info("withoutContext method")
-	//output: {"level":"info","msg":"withoutContext method","time":"2021/05/17 14:16:12.514"}
-}
-
-func withFormatter() logrus.Option {
-	return func(o *logrus.Options) {
-		o.Formatter = json.New()
-	}
-}
-
-func withConsoleLevel() logrus.Option {
-	return func(o *logrus.Options) {
-		o.Console.Level = "DEBUG"
-	}
-}
+##### MaxAge
+WithFileMaxAge sets the maximum number of days to retain old log files based on the timestamp encoded in their filename.
+```go
+// file max age
+logger := logrus.NewLogger(logrus.WithFileMaxAge(10))
 ```
