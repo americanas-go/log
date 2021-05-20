@@ -1,8 +1,6 @@
 package logrus
 
 import (
-	//"github.com/stretchr/testify/mock"
-
 	"context"
 	"fmt"
 	"io"
@@ -105,7 +103,7 @@ func (s *LoggerSuite) TestNewLogger() {
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			got := NewLogger(t.opts...)
-			s.Assert().True(reflect.DeepEqual(got, t.want()), "NewLogger() = %v, want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want()), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -142,21 +140,21 @@ func (s *LoggerSuite) Test_logLevel() {
 			want:  logrus.WarnLevel,
 		},
 		{
-			name:  "log level FATAL",
-			level: "FATAL",
-			want:  logrus.FatalLevel,
-		},
-		{
 			name:  "log level PANIC",
 			level: "PANIC",
 			want:  logrus.PanicLevel,
+		},
+		{
+			name:  "log level FATAL",
+			level: "FATAL",
+			want:  logrus.FatalLevel,
 		},
 	}
 
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			got := logLevel(t.level)
-			s.Assert().True(reflect.DeepEqual(got, t.want), "logLevel() = %v, want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -257,7 +255,7 @@ func (s *LoggerSuite) TestLogger() {
 			defer func() {
 				recover() //for panic case
 				got := captureLog(w, r)
-				s.Assert().True(strings.Contains(got, t.want), "got = %v, must contains %v", got, t.want)
+				s.Assert().True(strings.Contains(got, t.want), "got %v\nmust contain %v", got, t.want)
 			}()
 			m := reflect.ValueOf(logger).MethodByName(t.method)
 			m.Call([]reflect.Value{reflect.ValueOf("Blah")})
@@ -289,7 +287,7 @@ func (s *LoggerSuite) TestLoggerFatal() {
 			out, e := cmd.CombinedOutput()
 			s.Assert().False(false, "got an unexpected error = %v", e)
 			got := string(out)
-			s.Assert().True(strings.Contains(got, t.want), "got = %v, must contain %v", got, t.want)
+			s.Assert().True(strings.Contains(got, t.want), "got %v\nmust contain %v", got, t.want)
 		})
 	}
 }
@@ -375,7 +373,7 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 		s.Run(t.name, func() {
 			got := t.method()
 			want := t.want()
-			s.Assert().True(reflect.DeepEqual(got, want), "got %v | want %v", got, want)
+			s.Assert().True(reflect.DeepEqual(got, want), "got  %v\nwant %v", got, want)
 		})
 	}
 }
@@ -394,7 +392,7 @@ func (s *LoggerSuite) TestLoggerFields() {
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			got := logger.Fields()
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -413,7 +411,7 @@ func (s *LoggerSuite) TestLoggerOutput() {
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			got := logger.Output()
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -433,7 +431,7 @@ func (s *LoggerSuite) TestLoggerToContext() {
 		s.Run(t.name, func() {
 			ctx := logger.ToContext(context.Background())
 			got := ctx.Value(key)
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -452,7 +450,7 @@ func (s *LoggerSuite) TestLoggerFromContext() {
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			got := l.FromContext(context.Background())
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -536,7 +534,7 @@ func (s *LoggerSuite) TestLoggerEntry() {
 			defer func() {
 				recover() //for panic case
 				got := captureLog(w, r)
-				s.Assert().True(strings.Contains(got, t.want), "got = %v, must contain %v", got, t.want)
+				s.Assert().True(strings.Contains(got, t.want), "got %v\nmust contain %v", got, t.want)
 			}()
 			m := reflect.ValueOf(logger).MethodByName(t.method)
 			m.Call([]reflect.Value{reflect.ValueOf("Blah")})
@@ -568,7 +566,7 @@ func (s *LoggerSuite) TestLoggerEntryFatal() {
 			out, e := cmd.CombinedOutput()
 			s.Assert().False(false, "got an unexpected error = %v", e)
 			got := string(out)
-			s.Assert().True(strings.Contains(got, t.want), "got = %v, must contain %v", got, t.want)
+			s.Assert().True(strings.Contains(got, t.want), "got %v\nmust contain %v", got, t.want)
 		})
 	}
 }
@@ -662,7 +660,7 @@ func (s *LoggerSuite) TestLoggerEntryWithMethods() {
 		s.Run(t.name, func() {
 			got := t.method()
 			want := t.want()
-			s.Assert().True(reflect.DeepEqual(got, want), "got %v | want %v", got, want)
+			s.Assert().True(reflect.DeepEqual(got, want), "got  %v\nwant %v", got, want)
 		})
 	}
 }
@@ -685,7 +683,7 @@ func (s *LoggerSuite) TestLoggerEntryFields() {
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			got := logger.Fields()
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -704,7 +702,7 @@ func (s *LoggerSuite) TestLoggerEntryOutput() {
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			got := logger.Output()
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -724,7 +722,7 @@ func (s *LoggerSuite) TestLoggerEntryToContext() {
 		s.Run(t.name, func() {
 			ctx := logger.ToContext(context.Background())
 			got := ctx.Value(key)
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -743,7 +741,7 @@ func (s *LoggerSuite) TestLoggerEntryFromContext() {
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			got := l.FromContext(context.Background())
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -790,7 +788,7 @@ func (s *LoggerSuite) Test_toContext() {
 		s.Run(t.name, func() {
 			got := toContext(t.in, fields)
 			want := t.want()
-			s.Assert().True(reflect.DeepEqual(got, want), "got %v | want %v", got, want)
+			s.Assert().True(reflect.DeepEqual(got, want), "got  %v\nwant %v", got, want)
 		})
 	}
 }
@@ -824,7 +822,7 @@ func (s *LoggerSuite) Test_fieldsFromContext() {
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			got := fieldsFromContext(t.in)
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -851,7 +849,7 @@ func (s *LoggerSuite) Test_convertToLogrusFields() {
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			got := convertToLogrusFields(t.in)
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }
@@ -878,7 +876,7 @@ func (s *LoggerSuite) Test_convertToFields() {
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			got := convertToFields(t.in)
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got %v | want %v", got, t.want)
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})
 	}
 }

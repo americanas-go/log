@@ -44,7 +44,7 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 	var writers []io.Writer
 
 	if options.Console.Enabled {
-		level := getZapLevel(options.Console.Level)
+		level := logLevel(options.Console.Level)
 		writer := zapcore.Lock(os.Stdout)
 		coreconsole := zapcore.NewCore(getEncoder(options.Console.Formatter), writer, level)
 		cores = append(cores, coreconsole)
@@ -62,7 +62,7 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 			MaxAge:   options.File.MaxAge,
 		}
 
-		level := getZapLevel(options.File.Level)
+		level := logLevel(options.File.Level)
 		writer := zapcore.AddSync(lumber)
 		corefile := zapcore.NewCore(getEncoder(options.File.Formatter), writer, level)
 		cores = append(cores, corefile)
@@ -147,7 +147,7 @@ func getEncoder(format string) zapcore.Encoder {
 	}
 }
 
-func getZapLevel(level string) zapcore.Level {
+func logLevel(level string) zapcore.Level {
 	switch level {
 	case "TRACE":
 		return zapcore.DebugLevel
@@ -157,6 +157,8 @@ func getZapLevel(level string) zapcore.Level {
 		return zapcore.DebugLevel
 	case "ERROR":
 		return zapcore.ErrorLevel
+	case "PANIC":
+		return zapcore.PanicLevel
 	case "FATAL":
 		return zapcore.FatalLevel
 	default:
@@ -302,10 +304,6 @@ func (l *zapLogger) ToContext(ctx context.Context) context.Context {
 	fields := l.Fields()
 
 	ctxFields := fieldsFromContext(ctx)
-
-	if ctxFields == nil {
-		ctxFields = map[string]interface{}{}
-	}
 
 	for k, v := range fields {
 		ctxFields[k] = v

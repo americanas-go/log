@@ -52,7 +52,7 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 	zerolog.LevelFieldName = "log_level"
 
 	zerologger := zerolog.New(writer).With().Timestamp().Logger()
-	level := getLogLevel(options.Console.Level)
+	level := logLevel(options.Console.Level)
 	zerologger = zerologger.Level(level)
 
 	logger := &logger{
@@ -110,18 +110,20 @@ type logger struct {
 	fields log.Fields
 }
 
-func getLogLevel(level string) zerolog.Level {
+func logLevel(level string) zerolog.Level {
 	switch level {
+	case "TRACE":
+		return zerolog.TraceLevel
 	case "DEBUG":
 		return zerolog.DebugLevel
 	case "WARN":
 		return zerolog.WarnLevel
-	case "FATAL":
-		return zerolog.FatalLevel
 	case "ERROR":
 		return zerolog.ErrorLevel
-	case "TRACE":
-		return zerolog.TraceLevel
+	case "PANIC":
+		return zerolog.PanicLevel
+	case "FATAL":
+		return zerolog.FatalLevel
 	default:
 		return zerolog.InfoLevel
 	}
@@ -285,8 +287,7 @@ func (l *logger) Output() io.Writer {
 }
 
 func (l *logger) ToContext(ctx context.Context) context.Context {
-	logger := l.logger
-	return logger.WithContext(ctx)
+	return l.logger.WithContext(context.WithValue(ctx, key, l.fields))
 }
 
 func (l *logger) FromContext(ctx context.Context) log.Logger {
