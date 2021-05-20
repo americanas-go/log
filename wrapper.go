@@ -15,6 +15,18 @@ func Printf(format string, args ...interface{}) {
 	l.Printf(format, args...)
 }
 
+// Tracef logs a templated message at trace level.
+//
+// For templating details see implementation doc.
+func Tracef(format string, args ...interface{}) {
+	l.Tracef(format, args...)
+}
+
+// Trace logs a message at trace level.
+func Trace(args ...interface{}) {
+	l.Trace(args...)
+}
+
 // Debugf logs a templated message at debug level.
 //
 // For templating details see implementation doc.
@@ -63,16 +75,6 @@ func Error(args ...interface{}) {
 	l.Error(args...)
 }
 
-// Fatalf is equivalent to Printf() followed by a call to os.Exit(1).
-func Fatalf(format string, args ...interface{}) {
-	l.Fatalf(format, args...)
-}
-
-// Fatal is equivalent to Print() followed by a call to os.Exit(1).
-func Fatal(args ...interface{}) {
-	l.Fatal(args...)
-}
-
 // Panicf is equivalent to Printf() followed by a call to panic().
 func Panicf(format string, args ...interface{}) {
 	l.Panicf(format, args...)
@@ -83,26 +85,24 @@ func Panic(args ...interface{}) {
 	l.Panic(args...)
 }
 
-// Tracef logs a templated message at trace level.
-//
-// For templating details see implementation doc.
-func Tracef(format string, args ...interface{}) {
-	l.Tracef(format, args...)
+// Fatal is equivalent to Print() followed by a call to os.Exit(1).
+func Fatal(args ...interface{}) {
+	l.Fatal(args...)
 }
 
-// Trace logs a message at trace level.
-func Trace(args ...interface{}) {
-	l.Trace(args...)
-}
-
-// WithFields adds fields to logger.
-func WithFields(keyValues Fields) Logger {
-	return l.WithFields(keyValues)
+// Fatalf is equivalent to Printf() followed by a call to os.Exit(1).
+func Fatalf(format string, args ...interface{}) {
+	l.Fatalf(format, args...)
 }
 
 // WithField adds a key and value to logger.
 func WithField(key string, value string) Logger {
 	return l.WithField(key, value)
+}
+
+// WithFields adds fields to logger.
+func WithFields(keyValues Fields) Logger {
+	return l.WithFields(keyValues)
 }
 
 // WithTypeOf adds type information to logger.
