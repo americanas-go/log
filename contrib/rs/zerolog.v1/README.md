@@ -110,3 +110,60 @@ WithFileMaxAge sets the maximum number of days to retain old log files based on 
 // file max age
 logger := zerolog.NewLogger(zerolog.WithFileMaxAge(10))
 ```
+
+Example
+--------
+
+```go
+package main
+
+import (
+	"context"
+
+	"github.com/americanas-go/log"
+	"github.com/americanas-go/log/contrib/rs/zerolog.v1"
+)
+
+func main() {
+	ctx := context.Background()
+
+	//example use zerolog
+	logger := zerolog.NewLogger()
+
+	logger = logger.WithField("main_field", "example")
+
+	logger.Info("main method.")
+	//output: 2:30PM INF main method. main_field=example
+
+	ctx = logger.ToContext(ctx)
+
+	foo(ctx)
+
+	withoutContext()
+}
+
+func foo(ctx context.Context) {
+	logger := log.FromContext(ctx)
+
+	logger = logger.WithField("foo_field", "example")
+	logger.Infof("%s method.", "foo")
+	//output: 2:30PM INF foo method. foo_field=example main_field=example
+
+	ctx = logger.ToContext(ctx)
+	bar(ctx)
+}
+
+func bar(ctx context.Context) {
+	logger := log.FromContext(ctx)
+
+	logger = logger.WithField("bar_field", "example")
+
+	logger.Infof("%s method.", "bar")
+	//output: 2:30PM INF bar method. bar_field=example foo_field=example main_field=example
+}
+
+func withoutContext() {
+	log.Info("withoutContext method")
+	//output: 2:30PM INF withoutContext method
+}
+```

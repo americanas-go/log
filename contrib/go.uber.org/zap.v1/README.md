@@ -142,3 +142,60 @@ logger := zap.NewLogger(zap.WithFileFormatter("TEXT"))
 // json formatter
 logger := zap.NewLogger(zap.WithFileFormatter("JSON"))
 ```
+
+Example
+--------
+
+```go
+package main
+
+import (
+	"context"
+
+	"github.com/americanas-go/log"
+	"github.com/americanas-go/log/contrib/go.uber.org/zap.v1"
+)
+
+func main() {
+	ctx := context.Background()
+
+	//example use zap
+	logger := zap.NewLogger()
+
+	logger = logger.WithField("main_field", "example")
+
+	logger.Info("main method.")
+	//output: 2021-05-16T14:30:31.788-0300	info	runtime/proc.go:225	main method.	{"main_field": "example"}
+
+	ctx = logger.ToContext(ctx)
+
+	foo(ctx)
+
+	withoutContext()
+}
+
+func foo(ctx context.Context) {
+	logger := log.FromContext(ctx)
+
+	logger = logger.WithField("foo_field", "example")
+	logger.Infof("%s method.", "foo")
+	//output: 2021-05-16T14:30:31.788-0300	info	contrib/main.go:24	foo method.	{"main_field": "example", "foo_field": "example"}
+
+	ctx = logger.ToContext(ctx)
+	bar(ctx)
+}
+
+func bar(ctx context.Context) {
+	logger := log.FromContext(ctx)
+
+	logger = logger.WithField("bar_field", "example")
+
+	logger.Infof("%s method.", "bar")
+	//output: 2021-05-16T14:30:31.788-0300	info	contrib/main.go:37	bar method.	{"bar_field": "example", "main_field": "example", "foo_field": "example"}
+}
+
+func withoutContext() {
+	log.Info("withoutContext method")
+	//output: 2021-05-16T14:30:31.788-0300	info	contrib/main.go:50	withoutContext method
+}
+```

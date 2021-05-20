@@ -25,8 +25,8 @@ WithFormatter sets output format of the logs. Using TEXT/JSON/CLOUDWATCH.
 import (
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1/formatter/text"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1/formatter/json"
-    "github.com/americanas-go/log/contrib/sirupsen/logrus.v1/formatter/cloudwatch"
-    ...
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1/formatter/cloudwatch"
+	...
 )
 
 // text formatter
@@ -93,8 +93,8 @@ import (
 
 func main() {
 	hook, _ := syshooklg.NewSyslogHook("udp", "localhost:514", syslog.LOG_INFO, "")
-    logger := logrus.NewLogger(logrus.WithHook(hook))
-    ...
+	logger := logrus.NewLogger(logrus.WithHook(hook))
+	...
 }
 ```
 
@@ -145,4 +145,61 @@ WithFileMaxAge sets the maximum number of days to retain old log files based on 
 ```go
 // file max age
 logger := logrus.NewLogger(logrus.WithFileMaxAge(10))
+```
+
+Example
+--------
+
+```go
+package main
+
+import (
+	"context"
+
+	"github.com/americanas-go/log"
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	ctx := context.Background()
+
+	//example use logrus
+	logger := logrus.NewLogger()
+
+	logger = logger.WithField("main_field", "example")
+
+	logger.Info("main method.")
+	//output: INFO[2021/05/14 17:15:04.757] main method. main_field=example
+
+	ctx = logger.ToContext(ctx)
+
+	foo(ctx)
+
+	withoutContext()
+}
+
+func foo(ctx context.Context) {
+	logger := log.FromContext(ctx)
+
+	logger = logger.WithField("foo_field", "example")
+	logger.Infof("%s method.", "foo")
+	//output: INFO[2021/05/14 17:15:04.757] foo method. foo_field=example main_field=example
+
+	ctx = logger.ToContext(ctx)
+	bar(ctx)
+}
+
+func bar(ctx context.Context) {
+	logger := log.FromContext(ctx)
+
+	logger = logger.WithField("bar_field", "example")
+
+	logger.Infof("%s method.", "bar")
+	//output: INFO[2021/05/14 17:15:04.757] bar method. bar_field=example foo_field=example main_field=example
+}
+
+func withoutContext() {
+	log.Info("withoutContext method")
+	//output: INFO[2021/05/14 17:15:04.757] withoutContext method
+}
 ```
