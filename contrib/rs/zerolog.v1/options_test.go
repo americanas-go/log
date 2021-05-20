@@ -30,10 +30,10 @@ func (s *OptionsSuite) TestOptionsWithMethods() {
 			method: WithConsoleEnabled(true),
 		},
 		{
-			name:   "Options with console level",
+			name:   "Options with level",
 			want:   "TRACE",
-			got:    func(o *Options) interface{} { return o.Console.Level },
-			method: WithConsoleLevel("TRACE"),
+			got:    func(o *Options) interface{} { return o.Level },
+			method: WithLevel("TRACE"),
 		},
 		{
 			name:   "Options with file compress",
@@ -46,12 +46,6 @@ func (s *OptionsSuite) TestOptionsWithMethods() {
 			want:   true,
 			got:    func(o *Options) interface{} { return o.File.Enabled },
 			method: WithFileEnabled(true),
-		},
-		{
-			name:   "Options with file level",
-			want:   "INFO",
-			got:    func(o *Options) interface{} { return o.File.Level },
-			method: WithFileLevel("INFO"),
 		},
 		{
 			name:   "Options with file max age",

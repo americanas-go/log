@@ -13,16 +13,19 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+type ctxKey string
+
 const (
-	defaultFormatter      = "TEXT"
-	defaultLevel          = "INFO"
-	defaultConsoleEnabled = true
-	defaultFileEnabled    = false
-	defaultFilePath       = "/tmp"
-	defaultFileName       = "application.log"
-	defaultFileMaxSize    = 100
-	defaultFileCompress   = true
-	defaultFileMaxAge     = 28
+	key                   ctxKey = "ctxfields"
+	defaultFormatter             = "TEXT"
+	defaultLevel                 = "INFO"
+	defaultConsoleEnabled        = true
+	defaultFileEnabled           = false
+	defaultFilePath              = "/tmp"
+	defaultFileName              = "application.log"
+	defaultFileMaxSize           = 100
+	defaultFileCompress          = true
+	defaultFileMaxAge            = 28
 )
 
 // NewLogger constructs a new Logger from provided variadic Option.
@@ -48,7 +51,7 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 	zerolog.LevelFieldName = "log_level"
 
 	zerologger := zerolog.New(writer).With().Timestamp().Logger()
-	level := getLogLevel(options.Level)
+	level := logLevel(options.Level)
 	zerologger = zerologger.Level(level)
 
 	logger := &logger{

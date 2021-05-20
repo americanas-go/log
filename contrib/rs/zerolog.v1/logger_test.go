@@ -156,7 +156,7 @@ func initLogCapture() (logger log.Logger, w *os.File, r *os.File) {
 	defer func() { os.Stdout = original }()
 	r, w, _ = os.Pipe()
 	os.Stdout = w
-	logger = NewLogger(WithConsoleLevel("TRACE"))
+	logger = NewLogger(WithLevel("TRACE"))
 	return logger, w, r
 }
 
@@ -293,7 +293,7 @@ func TestLoggerMethod(t *testing.T) {
 	if method == "" {
 		return
 	}
-	logger := NewLogger(WithConsoleLevel("TRACE"))
+	logger := NewLogger(WithLevel("TRACE"))
 	m := reflect.ValueOf(logger).MethodByName(method)
 	m.Call([]reflect.Value{reflect.ValueOf("Blah")})
 }
