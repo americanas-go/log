@@ -16,15 +16,35 @@ import (
 
 type ctxKey string
 
-const key ctxKey = "ctxfields"
+const (
+	key                     ctxKey = "ctxfields"
+	defaultConsoleFormatter        = "TEXT"
+	defaultConsoleEnabled          = true
+	defaultConsoleLevel            = "INFO"
+	defaultFileEnabled             = false
+	defaultFileLevel               = "INFO"
+	defaultFilePath                = "/tmp"
+	defaultFileName                = "application.log"
+	defaultFileMaxSize             = 100
+	defaultFileCompress            = true
+	defaultFileMaxAge              = 28
+	defaultFileFormatter           = "TEXT"
+)
 
-func NewLogger(options *Options) log.Logger {
+// NewLogger constructs a new Logger from provided variadic Option.
+func NewLogger(option ...Option) log.Logger {
+	options := options(option)
+	return NewLoggerWithOptions(options)
+}
+
+// NewLoggerWithOptions constructs a new Logger from provided Options.
+func NewLoggerWithOptions(options *Options) log.Logger {
 
 	cores := []zapcore.Core{}
 	var writers []io.Writer
 
 	if options.Console.Enabled {
-		level := getZapLevel(options.Console.Level)
+		level := logLevel(options.Console.Level)
 		writer := zapcore.Lock(os.Stdout)
 		coreconsole := zapcore.NewCore(getEncoder(options.Console.Formatter), writer, level)
 		cores = append(cores, coreconsole)
@@ -42,7 +62,7 @@ func NewLogger(options *Options) log.Logger {
 			MaxAge:   options.File.MaxAge,
 		}
 
-		level := getZapLevel(options.File.Level)
+		level := logLevel(options.File.Level)
 		writer := zapcore.AddSync(lumber)
 		corefile := zapcore.NewCore(getEncoder(options.File.Formatter), writer, level)
 		cores = append(cores, corefile)
@@ -66,6 +86,48 @@ func NewLogger(options *Options) log.Logger {
 	return newlogger
 }
 
+func defaultOptions() *Options {
+	return &Options{
+		Console: struct {
+			Enabled   bool
+			Level     string
+			Formatter string
+		}{
+			Enabled:   defaultConsoleEnabled,
+			Level:     defaultConsoleLevel,
+			Formatter: defaultConsoleFormatter,
+		},
+		File: struct {
+			Enabled   bool
+			Level     string
+			Path      string
+			Name      string
+			MaxSize   int
+			Compress  bool
+			MaxAge    int
+			Formatter string
+		}{
+			Enabled:   defaultFileEnabled,
+			Level:     defaultFileLevel,
+			Path:      defaultFilePath,
+			Name:      defaultFileName,
+			MaxSize:   defaultFileMaxSize,
+			Compress:  defaultFileCompress,
+			MaxAge:    defaultFileMaxAge,
+			Formatter: defaultFileFormatter,
+		},
+	}
+}
+
+func options(option []Option) *Options {
+	options := defaultOptions()
+
+	for _, o := range option {
+		o(options)
+	}
+	return options
+}
+
 func newSugaredLogger(core zapcore.Core) *zap.SugaredLogger {
 	return zap.New(core,
 		zap.AddCallerSkip(2),
@@ -74,25 +136,18 @@ func newSugaredLogger(core zapcore.Core) *zap.SugaredLogger {
 }
 
 func getEncoder(format string) zapcore.Encoder {
-
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	switch format {
-
 	case "JSON":
-
 		return zapcore.NewJSONEncoder(encoderConfig)
-
 	default:
-
 		return zapcore.NewConsoleEncoder(encoderConfig)
-
 	}
-
 }
 
-func getZapLevel(level string) zapcore.Level {
+func logLevel(level string) zapcore.Level {
 	switch level {
 	case "TRACE":
 		return zapcore.DebugLevel
@@ -102,6 +157,8 @@ func getZapLevel(level string) zapcore.Level {
 		return zapcore.DebugLevel
 	case "ERROR":
 		return zapcore.ErrorLevel
+	case "PANIC":
+		return zapcore.PanicLevel
 	case "FATAL":
 		return zapcore.FatalLevel
 	default:
@@ -116,42 +173,52 @@ type zapLogger struct {
 	core          zapcore.Core
 }
 
+// Printf uses (*zap.SugaredLogger).Infof to log a templated message.
 func (l *zapLogger) Printf(format string, args ...interface{}) {
 	l.sugaredLogger.Infof(format, args...)
 }
 
+// Tracef uses (*zap.SugaredLogger).Debugf to log a templated message.
 func (l *zapLogger) Tracef(format string, args ...interface{}) {
-	l.sugaredLogger.Debug(args...)
+	l.sugaredLogger.Debugf(format, args...)
 }
 
+// Trace uses (*zap.SugaredLogger).Debug to log a message.
 func (l *zapLogger) Trace(args ...interface{}) {
 	l.sugaredLogger.Debug(args...)
 }
 
+// Debug uses (*zap.SugaredLogger).Debug to log a message.
 func (l *zapLogger) Debug(args ...interface{}) {
 	l.sugaredLogger.Debug(args...)
 }
 
+// Info uses (*zap.SugaredLogger).Info to log a message.
 func (l *zapLogger) Info(args ...interface{}) {
 	l.sugaredLogger.Info(args...)
 }
 
+// Warn uses (*zap.SugaredLogger).Warn to log a message.
 func (l *zapLogger) Warn(args ...interface{}) {
 	l.sugaredLogger.Warn(args...)
 }
 
+// Error uses (*zap.SugaredLogger).Error to log a message.
 func (l *zapLogger) Error(args ...interface{}) {
 	l.sugaredLogger.Error(args...)
 }
 
+// Fatal uses (*zap.SugaredLogger).Fatal to log a message and call os.Exit(1).
 func (l *zapLogger) Fatal(args ...interface{}) {
 	l.sugaredLogger.Fatal(args...)
 }
 
+// Panic uses (*zap.SugaredLogger).Panic to log a message and panic.
 func (l *zapLogger) Panic(args ...interface{}) {
 	l.sugaredLogger.Panic(args...)
 }
 
+// WithField constructs a new Logger with l.fields and provided key and value field.
 func (l *zapLogger) WithField(key string, value interface{}) log.Logger {
 	newFields := log.Fields{}
 	for k, v := range l.fields {
@@ -165,34 +232,42 @@ func (l *zapLogger) WithField(key string, value interface{}) log.Logger {
 	return &zapLogger{newLogger, newFields, l.writers, l.core}
 }
 
+// Output returns a Writer that represents the zap writers.
 func (l *zapLogger) Output() io.Writer {
 	return io.MultiWriter(l.writers...)
 }
 
+// Debugf uses (*zap.SugaredLogger).Debugf to log a templated message.
 func (l *zapLogger) Debugf(format string, args ...interface{}) {
 	l.sugaredLogger.Debugf(format, args...)
 }
 
+// Infof uses (*zap.SugaredLogger).Infof to log a templated message.
 func (l *zapLogger) Infof(format string, args ...interface{}) {
 	l.sugaredLogger.Infof(format, args...)
 }
 
+// Warnf uses (*zap.SugaredLogger).Warnf to log a templated message.
 func (l *zapLogger) Warnf(format string, args ...interface{}) {
 	l.sugaredLogger.Warnf(format, args...)
 }
 
+// Errorf uses (*zap.SugaredLogger).Errorf to log a templated message.
 func (l *zapLogger) Errorf(format string, args ...interface{}) {
 	l.sugaredLogger.Errorf(format, args...)
 }
 
+// Fatalf uses (*zap.SugaredLogger).Fatalf to log a templated message and call os.Exit(1).
 func (l *zapLogger) Fatalf(format string, args ...interface{}) {
 	l.sugaredLogger.Fatalf(format, args...)
 }
 
+// Panicf uses (*zap.SugaredLogger).Panif to log a templated message and panic.
 func (l *zapLogger) Panicf(format string, args ...interface{}) {
-	l.sugaredLogger.Fatalf(format, args...)
+	l.sugaredLogger.Panicf(format, args...)
 }
 
+// WithFields constructs a new Logger with l.fields and the provided fields.
 func (l *zapLogger) WithFields(fields log.Fields) log.Logger {
 	newFields := log.Fields{}
 
@@ -209,6 +284,7 @@ func (l *zapLogger) WithFields(fields log.Fields) log.Logger {
 	return &zapLogger{newLogger, newFields, l.writers, l.core}
 }
 
+// WithTypeOf adds type and package information fields.
 func (l *zapLogger) WithTypeOf(obj interface{}) log.Logger {
 
 	t := reflect.TypeOf(obj)
@@ -219,18 +295,15 @@ func (l *zapLogger) WithTypeOf(obj interface{}) log.Logger {
 	})
 }
 
-func (l *zapLogger) GetFields() log.Fields {
+func (l *zapLogger) Fields() log.Fields {
 	return l.fields
 }
 
+// ToContext returns a copy of ctx in which its fields are added to those of l.
 func (l *zapLogger) ToContext(ctx context.Context) context.Context {
-	fields := l.GetFields()
+	fields := l.Fields()
 
 	ctxFields := fieldsFromContext(ctx)
-
-	if ctxFields == nil {
-		ctxFields = map[string]interface{}{}
-	}
 
 	for k, v := range fields {
 		ctxFields[k] = v
@@ -239,6 +312,7 @@ func (l *zapLogger) ToContext(ctx context.Context) context.Context {
 	return context.WithValue(ctx, key, ctxFields)
 }
 
+// FromContext returns a Logger from ctx.
 func (l *zapLogger) FromContext(ctx context.Context) log.Logger {
 	fields := fieldsFromContext(ctx)
 	return l.WithFields(fields)

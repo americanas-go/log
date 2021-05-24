@@ -13,7 +13,29 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func NewLogger(options *Options) log.Logger {
+type ctxKey string
+
+const (
+	key                   ctxKey = "ctxfields"
+	defaultFormatter             = "TEXT"
+	defaultLevel                 = "INFO"
+	defaultConsoleEnabled        = true
+	defaultFileEnabled           = false
+	defaultFilePath              = "/tmp"
+	defaultFileName              = "application.log"
+	defaultFileMaxSize           = 100
+	defaultFileCompress          = true
+	defaultFileMaxAge            = 28
+)
+
+// NewLogger constructs a new Logger from provided variadic Option.
+func NewLogger(option ...Option) log.Logger {
+	options := options(option)
+	return NewLoggerWithOptions(options)
+}
+
+// NewLoggerWithOptions constructs a new Logger from provided Options.
+func NewLoggerWithOptions(options *Options) log.Logger {
 	writer := getWriter(options)
 	if writer == nil {
 		zerologger := zerolog.Nop()
@@ -29,35 +51,75 @@ func NewLogger(options *Options) log.Logger {
 	zerolog.LevelFieldName = "log_level"
 
 	zerologger := zerolog.New(writer).With().Timestamp().Logger()
-	level := getLogLevel(options.Console.Level)
+	level := logLevel(options.Level)
 	zerologger = zerologger.Level(level)
 
 	logger := &logger{
 		logger: zerologger,
 		writer: writer,
+		fields: log.Fields{},
 	}
 
 	log.NewLogger(logger)
 	return logger
 }
 
+func defaultOptions() *Options {
+	return &Options{
+		Formatter: defaultFormatter,
+		Level:     defaultLevel,
+		Console: struct {
+			Enabled bool
+		}{
+			Enabled: defaultConsoleEnabled,
+		},
+		File: struct {
+			Enabled  bool
+			Path     string
+			Name     string
+			MaxSize  int
+			Compress bool
+			MaxAge   int
+		}{
+			Enabled:  defaultFileEnabled,
+			Path:     defaultFilePath,
+			Name:     defaultFileName,
+			MaxSize:  defaultFileMaxSize,
+			Compress: defaultFileCompress,
+			MaxAge:   defaultFileMaxAge,
+		},
+	}
+}
+
+func options(option []Option) *Options {
+	options := defaultOptions()
+
+	for _, o := range option {
+		o(options)
+	}
+	return options
+}
+
 type logger struct {
 	logger zerolog.Logger
 	writer io.Writer
+	fields log.Fields
 }
 
-func getLogLevel(level string) zerolog.Level {
+func logLevel(level string) zerolog.Level {
 	switch level {
+	case "TRACE":
+		return zerolog.TraceLevel
 	case "DEBUG":
 		return zerolog.DebugLevel
 	case "WARN":
 		return zerolog.WarnLevel
-	case "FATAL":
-		return zerolog.FatalLevel
 	case "ERROR":
 		return zerolog.ErrorLevel
-	case "TRACE":
-		return zerolog.TraceLevel
+	case "PANIC":
+		return zerolog.PanicLevel
+	case "FATAL":
+		return zerolog.FatalLevel
 	default:
 		return zerolog.InfoLevel
 	}
@@ -85,9 +147,8 @@ func getWriter(options *Options) io.Writer {
 
 		if options.Console.Enabled {
 			return io.MultiWriter(writer, fileHandler)
-		} else {
-			return fileHandler
 		}
+		return fileHandler
 	} else if options.Console.Enabled {
 		return writer
 	}
@@ -105,7 +166,7 @@ func (l *logger) Tracef(format string, args ...interface{}) {
 
 func (l *logger) Trace(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -118,7 +179,7 @@ func (l *logger) Debugf(format string, args ...interface{}) {
 
 func (l *logger) Debug(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -131,7 +192,7 @@ func (l *logger) Infof(format string, args ...interface{}) {
 
 func (l *logger) Info(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -144,7 +205,7 @@ func (l *logger) Warnf(format string, args ...interface{}) {
 
 func (l *logger) Warn(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -157,7 +218,7 @@ func (l *logger) Errorf(format string, args ...interface{}) {
 
 func (l *logger) Error(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -170,7 +231,7 @@ func (l *logger) Fatalf(format string, args ...interface{}) {
 
 func (l *logger) Fatal(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -183,7 +244,7 @@ func (l *logger) Panicf(format string, args ...interface{}) {
 
 func (l *logger) Panic(args ...interface{}) {
 	format := bytes.NewBufferString("")
-	for _ = range args {
+	for range args {
 		format.WriteString("%v")
 	}
 
@@ -195,12 +256,12 @@ func (l *logger) WithField(key string, value interface{}) log.Logger {
 	newField[key] = value
 
 	newLogger := l.logger.With().Fields(newField).Logger()
-	return &logger{newLogger, l.writer}
+	return &logger{newLogger, l.writer, newField}
 }
 
 func (l *logger) WithFields(fields log.Fields) log.Logger {
 	newLogger := l.logger.With().Fields(fields).Logger()
-	return &logger{newLogger, l.writer}
+	return &logger{newLogger, l.writer, fields}
 }
 
 func (l *logger) WithTypeOf(obj interface{}) log.Logger {
@@ -213,13 +274,16 @@ func (l *logger) WithTypeOf(obj interface{}) log.Logger {
 	})
 }
 
+func (l *logger) Fields() log.Fields {
+	return l.fields
+}
+
 func (l *logger) Output() io.Writer {
 	return l.writer
 }
 
 func (l *logger) ToContext(ctx context.Context) context.Context {
-	logger := l.logger
-	return logger.WithContext(ctx)
+	return l.logger.WithContext(context.WithValue(ctx, key, l.fields))
 }
 
 func (l *logger) FromContext(ctx context.Context) log.Logger {
@@ -227,6 +291,13 @@ func (l *logger) FromContext(ctx context.Context) log.Logger {
 	if zerologger.GetLevel() == zerolog.Disabled {
 		return l
 	}
-
-	return &logger{*zerologger, l.writer}
+	rawFields := ctx.Value(key)
+	fields := log.Fields{}
+	if rawFields != nil {
+		switch v := rawFields.(type) {
+		case log.Fields:
+			fields = v
+		}
+	}
+	return &logger{*zerologger, l.writer, fields}
 }
