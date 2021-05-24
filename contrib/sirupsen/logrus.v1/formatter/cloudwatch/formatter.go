@@ -8,8 +8,8 @@ import (
 // Option represents a CloudWatch formatter option.
 type Option func(formatter *cwlogsfmt.CloudWatchLogsFormatter)
 
-// NewFormatter returns a new logrus formatter for CloudWatch.
-func NewFormatter(options ...Option) logrus.Formatter {
+// New returns a new logrus formatter for CloudWatch.
+func New(options ...Option) logrus.Formatter {
 	fmt := &cwlogsfmt.CloudWatchLogsFormatter{
 		PrefixFields:     []string{"RequestId"},
 		DisableSorting:   false,
