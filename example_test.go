@@ -5,13 +5,14 @@ import (
 
 	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1/formatter/text"
 )
 
 func ExampleNewLogger() {
-	log.NewLogger(logrus.NewLogger())
+	log.NewLogger(logrus.NewLogger(logrus.WithFormatter(text.New(text.WithDisableTimestamp(true)))))
 	log.WithField("main_field", "example")
 	log.Info("main method.")
-	// Output: INFO[2021/05/14 17:15:04.757] main method. main_field=example
+	// Output: level=info msg="main method."
 }
 
 func ExampleToContext() {
@@ -25,7 +26,7 @@ func ExampleToContext() {
 	foo := func(ctx context.Context) {
 		logger := log.FromContext(ctx)
 
-		logger.WithField("foo_field", "example")
+		logger = logger.WithField("foo_field", "example")
 		logger.Infof("%s method.", "foo")
 
 		ctx = logger.ToContext(ctx)
@@ -38,7 +39,9 @@ func ExampleToContext() {
 	}
 
 	ctx := context.Background()
-	log.NewLogger(logrus.NewLogger())
+	log.NewLogger(logrus.NewLogger(
+		logrus.WithFormatter(text.New(text.WithDisableTimestamp(true))),
+	).WithField("main_field", "example"))
 
 	ctx = log.ToContext(ctx)
 
@@ -47,9 +50,9 @@ func ExampleToContext() {
 	withoutContext()
 
 	// Output:
-	// INFO[2021/05/14 17:15:04.757] foo method. foo_field=example main_field=example
-	// INFO[2021/05/14 17:15:04.757] bar method. bar_field=example foo_field=example main_field=example
-	// INFO[2021/05/14 17:15:04.757] withoutContext method
+	// level=info msg="foo method." foo_field=example main_field=example
+	// level=info msg="bar method." bar_field=example foo_field=example main_field=example
+	// level=info msg="withoutContext method" main_field=example
 }
 
 func ExampleFromContext() {
@@ -63,7 +66,7 @@ func ExampleFromContext() {
 	foo := func(ctx context.Context) {
 		logger := log.FromContext(ctx)
 
-		logger.WithField("foo_field", "example")
+		logger = logger.WithField("foo_field", "example")
 		logger.Infof("%s method.", "foo")
 
 		ctx = logger.ToContext(ctx)
@@ -76,7 +79,9 @@ func ExampleFromContext() {
 	}
 
 	ctx := context.Background()
-	log.NewLogger(logrus.NewLogger())
+	log.NewLogger(logrus.NewLogger(
+		logrus.WithFormatter(text.New(text.WithDisableTimestamp(true))),
+	).WithField("main_field", "example"))
 
 	ctx = log.ToContext(ctx)
 
@@ -85,7 +90,7 @@ func ExampleFromContext() {
 	withoutContext()
 
 	// Output:
-	// INFO[2021/05/14 17:15:04.757] foo method. foo_field=example main_field=example
-	// INFO[2021/05/14 17:15:04.757] bar method. bar_field=example foo_field=example main_field=example
-	// INFO[2021/05/14 17:15:04.757] withoutContext method
+	// level=info msg="foo method." foo_field=example main_field=example
+	// level=info msg="bar method." bar_field=example foo_field=example main_field=example
+	// level=info msg="withoutContext method" main_field=example
 }
