@@ -12,94 +12,9 @@ Installation
 
 Supported libs
 --------
-* [Logrus](contrib/sirupsen/logrus.v1/README.md) - Is a structured logger for Go (golang), completely API compatible with the standard library logger.
-* [Zap](contrib/go.uber.org/zap.v1/README.md) - Blazing fast, structured, leveled logging in Go.
-* [Zerolog](contrib/rs/zerolog.v1/README.md) - Provides a fast and simple logger dedicated to JSON output.
-
-Logger
---------
-Logger is the contract for the logging.
-
-#### func (*Logger) Printf
-```go
-func (l *Logger) Printf(format string, args ...interface{})
-```
-#### func (*Logger) Tracef
-```go
-func (l *Logger) Tracef(format string, args ...interface{})
-```
-#### func (*Logger) Trace
-```go
-func (l *Logger) Trace(args ...interface{})
-```
-#### func (*Logger) Debugf
-```go
-func (l *Logger) Debugf(format string, args ...interface{})
-```
-#### func (*Logger) Debug
-```go
-func (l *Logger) Debug(args ...interface{})
-```
-#### func (*Logger) Infof
-```go
-func (l *Logger) Infof(format string, args ...interface{})
-```
-#### func (*Logger) Warnf
-```go
-func (l *Logger) Warnf(format string, args ...interface{})
-```
-#### func (*Logger) Warn
-```go
-func (l *Logger) Warn(args ...interface{})
-```
-#### func (*Logger) Errorf
-```go
-func (l *Logger) Errorf(format string, args ...interface{})
-```
-#### func (*Logger) Error
-```go
-func (l *Logger) Error(args ...interface{})
-```
-#### func (*Logger) Fatalf
-```go
-func (l *Logger) Fatalf(format string, args ...interface{})
-```
-#### func (*Logger) Fatal
-```go
-func (l *Logger) Fatal(args ...interface{})
-```
-#### func (*Logger) Panicf
-```go
-func (l *Logger) Panicf(format string, args ...interface{})
-```
-#### func (*Logger) Panic
-```go
-func (l *Logger) Panic(args ...interface{})
-```
-#### func (*Logger) WithFields
-```go
-func (l *Logger) WithFields(f Fields) Logger
-```
-#### func (*Logger) WithField
-```go
-func (l *Logger) WithField(k string, v interface{}) Logger
-```
-#### func (*Logger) WithTypeOf
-```go
-func (l *Logger) WithTypeOf(obj interface{}) Logger
-```
-#### func (*Logger) ToContext
-```go
-func (l *Logger) ToContext(ctx context.Context) context.Context
-```
-#### func (*Logger) FromContext
-```go
-func (l *Logger) FromContext(ctx context.Context) Logger
-```
-#### func (*Logger) Output
-```go
-func (l *Logger) Output() io.Writer
-```
+* [Logrus](contrib/sirupsen/logrus.v1) - Is a structured logger for Go (golang), completely API compatible with the standard library logger.
+* [Zap](contrib/go.uber.org/zap.v1) - Blazing fast, structured, leveled logging in Go.
+* [Zerolog](contrib/rs/zerolog.v1) - Provides a fast and simple logger dedicated to JSON output.
 
 Example
 --------
@@ -169,6 +84,534 @@ func withoutContext() {
 	//logrus output: INFO[2021/05/16 14:31:12.477] withoutContext method
 }
 ```
+
+Logger
+--------
+Logger is the contract for the logging.
+
+#### func (*Logger) Printf
+```go
+func (l *Logger) Printf(format string, args ...interface{})
+```
+Printf logs a message at level Info (Logrus and Zap) and Debug (Zerolog) on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Printf("hello %s", "world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Tracef
+```go
+func (l *Logger) Tracef(format string, args ...interface{})
+```
+Tracef logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Tracef("hello %s", "world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Trace
+```go
+func (l *Logger) Trace(args ...interface{})
+```
+Trace logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Trace("hello world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Debugf
+```go
+func (l *Logger) Debugf(format string, args ...interface{})
+```
+Debugf logs a message at level Debug on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Debugf("hello %s", "world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Debug
+```go
+func (l *Logger) Debug(args ...interface{})
+```
+Debug logs a message at level Debug on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Debug("hello world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Infof
+```go
+func (l *Logger) Infof(format string, args ...interface{})
+```
+Infof logs a message at level Info on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Infof("hello %s", "world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Info
+```go
+func (l *Logger) Info(args ...interface{})
+```
+Info logs a message at level Info on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Info("hello world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Warnf
+```go
+func (l *Logger) Warnf(format string, args ...interface{})
+```
+Warnf logs a message at level Warn on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Warnf("hello %s", "world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Warn
+```go
+func (l *Logger) Warn(args ...interface{})
+```
+Warn logs a message at level Warn on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Warn("hello world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Errorf
+```go
+func (l *Logger) Errorf(format string, args ...interface{})
+```
+Errorf logs a message at level Error on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Errorf("hello %s", "world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Error
+```go
+func (l *Logger) Error(args ...interface{})
+```
+Error logs a message at level Error on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Error("hello world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Fatalf
+```go
+func (l *Logger) Fatalf(format string, args ...interface{})
+```
+Fatalf logs a message at level Fatal on the standard logger, then calls os.Exit(1).
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Fatalf("hello %s", "world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Fatal
+```go
+func (l *Logger) Fatal(args ...interface{})
+```
+Fatal logs a message at level Fatal on the standard logger, then calls os.Exit(1).
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Fatal("hello world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Panicf
+```go
+func (l *Logger) Panicf(format string, args ...interface{})
+```
+Panicf logs a message at level Panic on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Panicf("hello %s", "world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Panic
+```go
+func (l *Logger) Panic(args ...interface{})
+```
+Panic logs a message at level Panic on the standard logger.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger.Panic("hello world")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) WithFields
+```go
+func (l *Logger) WithFields(f Fields) Logger
+```
+WithFields creates an entry from the standard logger and adds multiple fields to i
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log"
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger = logger.WithFields(log.Fields{
+		"hello": "world",
+		"foo":   "bar",
+	})
+	logger.Info("main method.")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) WithField
+```go
+func (l *Logger) WithField(k string, v interface{}) Logger
+```
+WithField creates an entry from the standard logger and adds a field to it.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	logger = logger.WithField("hello", "world")
+	logger.Info("main method.")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) WithTypeOf
+```go
+func (l *Logger) WithTypeOf(obj interface{}) Logger
+```
+WithTypeOf creates an entry from the standard logger and adds type and package information fields.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	s := S{
+		F0: "foo",
+		F1: "bar",
+	}
+	logger = logger.WithTypeOf(s)
+	logger.Info("main method.")
+}
+
+type S struct {
+	F0 string `alias:"field_0"`
+	F1 string `alias:""`
+}
+```
+</details>
+<br />
+
+#### func (*Logger) ToContext
+```go
+func (l *Logger) ToContext(ctx context.Context) context.Context
+```
+ToContext returns a copy of ctx in which its fields are added to those of l.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"context"
+
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	ctx := context.Background()
+
+	logger := logrus.NewLogger()
+	logger = logger.WithField("main_field", "example")
+	logger.Info("main method.")
+
+	ctx = logger.ToContext(ctx)
+	logger.Infof("%s method.", "main")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) FromContext
+```go
+func (l *Logger) FromContext(ctx context.Context) Logger
+```
+FromContext returns a Logger from ctx.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"context"
+
+	"github.com/americanas-go/log"
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	ctx := context.Background()
+
+	logger := logrus.NewLogger()
+	logger = logger.WithField("main_field", "example")
+	logger.Info("main method.")
+
+	foo(ctx)
+}
+
+func foo(ctx context.Context) {
+	logger := log.FromContext(ctx)
+	logger.Infof("%s method.", "foo")
+}
+```
+</details>
+<br />
+
+#### func (*Logger) Output
+```go
+func (l *Logger) Output() io.Writer
+```
+Output returns a io.Writer.
+<details>
+<summary>Example</summary>
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logger := logrus.NewLogger()
+	n, err := logger.Output().Write([]byte("hello world"))
+	if err != nil {
+		panic(err)
+	}
+	logger.Infof("%d bytes", n)
+}
+```
+</details>
+<br />
 
 Contributing
 --------
