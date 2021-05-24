@@ -18,10 +18,9 @@ type ctxKey string
 const (
 	key                   ctxKey = "ctxfields"
 	defaultFormatter             = "TEXT"
+	defaultLevel                 = "INFO"
 	defaultConsoleEnabled        = true
-	defaultConsoleLevel          = "INFO"
 	defaultFileEnabled           = false
-	defaultFileLevel             = "INFO"
 	defaultFilePath              = "/tmp"
 	defaultFileName              = "application.log"
 	defaultFileMaxSize           = 100
@@ -29,11 +28,13 @@ const (
 	defaultFileMaxAge            = 28
 )
 
+// NewLogger constructs a new Logger from provided variadic Option.
 func NewLogger(option ...Option) log.Logger {
 	options := options(option)
 	return NewLoggerWithOptions(options)
 }
 
+// NewLoggerWithOptions constructs a new Logger from provided Options.
 func NewLoggerWithOptions(options *Options) log.Logger {
 	writer := getWriter(options)
 	if writer == nil {
@@ -50,12 +51,13 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 	zerolog.LevelFieldName = "log_level"
 
 	zerologger := zerolog.New(writer).With().Timestamp().Logger()
-	level := getLogLevel(options.Console.Level)
+	level := logLevel(options.Level)
 	zerologger = zerologger.Level(level)
 
 	logger := &logger{
 		logger: zerologger,
 		writer: writer,
+		fields: log.Fields{},
 	}
 
 	log.NewLogger(logger)
@@ -65,16 +67,14 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 func defaultOptions() *Options {
 	return &Options{
 		Formatter: defaultFormatter,
+		Level:     defaultLevel,
 		Console: struct {
 			Enabled bool
-			Level   string
 		}{
 			Enabled: defaultConsoleEnabled,
-			Level:   defaultConsoleLevel,
 		},
 		File: struct {
 			Enabled  bool
-			Level    string
 			Path     string
 			Name     string
 			MaxSize  int
@@ -82,7 +82,6 @@ func defaultOptions() *Options {
 			MaxAge   int
 		}{
 			Enabled:  defaultFileEnabled,
-			Level:    defaultFileLevel,
 			Path:     defaultFilePath,
 			Name:     defaultFileName,
 			MaxSize:  defaultFileMaxSize,
@@ -104,20 +103,23 @@ func options(option []Option) *Options {
 type logger struct {
 	logger zerolog.Logger
 	writer io.Writer
+	fields log.Fields
 }
 
-func getLogLevel(level string) zerolog.Level {
+func logLevel(level string) zerolog.Level {
 	switch level {
+	case "TRACE":
+		return zerolog.TraceLevel
 	case "DEBUG":
 		return zerolog.DebugLevel
 	case "WARN":
 		return zerolog.WarnLevel
-	case "FATAL":
-		return zerolog.FatalLevel
 	case "ERROR":
 		return zerolog.ErrorLevel
-	case "TRACE":
-		return zerolog.TraceLevel
+	case "PANIC":
+		return zerolog.PanicLevel
+	case "FATAL":
+		return zerolog.FatalLevel
 	default:
 		return zerolog.InfoLevel
 	}
@@ -254,12 +256,12 @@ func (l *logger) WithField(key string, value interface{}) log.Logger {
 	newField[key] = value
 
 	newLogger := l.logger.With().Fields(newField).Logger()
-	return &logger{newLogger, l.writer}
+	return &logger{newLogger, l.writer, newField}
 }
 
 func (l *logger) WithFields(fields log.Fields) log.Logger {
 	newLogger := l.logger.With().Fields(fields).Logger()
-	return &logger{newLogger, l.writer}
+	return &logger{newLogger, l.writer, fields}
 }
 
 func (l *logger) WithTypeOf(obj interface{}) log.Logger {
@@ -272,13 +274,16 @@ func (l *logger) WithTypeOf(obj interface{}) log.Logger {
 	})
 }
 
+func (l *logger) Fields() log.Fields {
+	return l.fields
+}
+
 func (l *logger) Output() io.Writer {
 	return l.writer
 }
 
 func (l *logger) ToContext(ctx context.Context) context.Context {
-	logger := l.logger
-	return logger.WithContext(ctx)
+	return l.logger.WithContext(context.WithValue(ctx, key, l.fields))
 }
 
 func (l *logger) FromContext(ctx context.Context) log.Logger {
@@ -286,6 +291,13 @@ func (l *logger) FromContext(ctx context.Context) log.Logger {
 	if zerologger.GetLevel() == zerolog.Disabled {
 		return l
 	}
-
-	return &logger{*zerologger, l.writer}
+	rawFields := ctx.Value(key)
+	fields := log.Fields{}
+	if rawFields != nil {
+		switch v := rawFields.(type) {
+		case log.Fields:
+			fields = v
+		}
+	}
+	return &logger{*zerologger, l.writer, fields}
 }
