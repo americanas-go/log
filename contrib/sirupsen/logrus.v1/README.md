@@ -122,9 +122,8 @@ sets the format used for marshaling timestamps.
 logger := logrus.NewLogger(logrus.WithTimeFormat("2006/01/02 15:04:05.000"))
 ```
 
-#### Console
-WithConsoleEnabled sets whether the standard logger output will be in console. Accepts multi writing (console and file).
-##### Enabled
+#### WithConsoleEnabled
+sets whether the standard logger output will be in console. Accepts multi writing (console and file).
 ```go
 // console enable true
 logger := logrus.NewLogger(logrus.WithConsoleEnabled(true))
@@ -133,8 +132,8 @@ logger := logrus.NewLogger(logrus.WithConsoleEnabled(true))
 logger := logrus.NewLogger(logrus.WithConsoleEnabled(false))
 ```
 
-##### Level
-WithConsoleLevel sets console logging level to any of these options below on the standard logger.
+#### WithConsoleLevel
+sets console logging level to any of these options below on the standard logger.
 ```go
 // log level DEBUG
 logger := logrus.NewLogger(logrus.WithConsoleLevel("DEBUG"))
@@ -155,8 +154,8 @@ logger := logrus.NewLogger(logrus.WithConsoleLevel("TRACE"))
 logger := logrus.NewLogger(logrus.WithConsoleLevel("INFO"))
 ```
 
-#### Hook
-WithHook sets a hook to be fired when logging on the logging levels.
+#### WithHook
+sets a hook to be fired when logging on the logging levels.
 ```go
 import (
 	"log/syslog"
@@ -173,9 +172,8 @@ func main() {
 }
 ```
 
-#### File
-WithFileEnabled sets whether the standard logger output will be in file. Accepts multi writing (file and console).
-##### Enabled
+#### WithFileEnabled
+sets whether the standard logger output will be in file. Accepts multi writing (file and console).
 ```go
 // file enable true
 logger := logrus.NewLogger(logrus.WithFileEnabled(true))
@@ -184,29 +182,29 @@ logger := logrus.NewLogger(logrus.WithFileEnabled(true))
 logger := logrus.NewLogger(logrus.WithFileEnabled(false))
 ```
 
-##### Path
-WithFilePath sets the path where the file will be saved.
+#### WithFilePath
+sets the path where the file will be saved.
 ```go
 // file path
 logger := logrus.NewLogger(logrus.WithFilePath("/tmp"))
 ```
 
-##### Name
-WithFileName sets the name of the file.
+#### WithFileName
+sets the name of the file.
 ```go
 // file name
 logger := logrus.NewLogger(logrus.WithFileName("application.log"))
 ```
 
-##### MaxSize
-WithFileMaxSize sets the maximum size in megabytes of the log file. It defaults to 100 megabytes.
+#### WithFileMaxSize
+sets the maximum size in megabytes of the log file. It defaults to 100 megabytes.
 ```go
 // file max size
 logger := logrus.NewLogger(logrus.WithFileMaxSize(100))
 ```
 
-##### Compress
-WithFileCompress sets whether the log files should be compressed.
+#### WithFileCompress
+sets whether the log files should be compressed.
 ```go
 // file compress true
 logger := logrus.NewLogger(logrus.WithFileCompress(true))
@@ -215,8 +213,8 @@ logger := logrus.NewLogger(logrus.WithFileCompress(true))
 logger := logrus.NewLogger(logrus.WithFileCompress(false))
 ```
 
-##### MaxAge
-WithFileMaxAge sets the maximum number of days to retain old log files based on the timestamp encoded in their filename.
+#### WithFileMaxAge
+sets the maximum number of days to retain old log files based on the timestamp encoded in their filename.
 ```go
 // file max age
 logger := logrus.NewLogger(logrus.WithFileMaxAge(10))
