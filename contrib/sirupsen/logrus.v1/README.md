@@ -62,6 +62,7 @@ default options:
 
 | option  | value  |
 |---|---|
+| Formatter | text.New() |
 | ConsoleEnabled | true |
 | ConsoleLevel | "INFO" |
 | FileEnabled | false |

@@ -90,7 +90,7 @@ Logger
 Logger is the contract for the logging.
 
 #### Printf
-Printf logs a message at level Info (Logrus and Zap) and Debug (Zerolog) on the standard logger.
+logs a message at level Info (Logrus and Zap) and Debug (Zerolog) on the standard logger.
 
 ```go
 package main
@@ -106,7 +106,7 @@ func main() {
 ```
 
 #### Tracef
-Tracef logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standard logger.
+logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standard logger.
 
 ```go
 package main
@@ -122,7 +122,7 @@ func main() {
 ```
 
 #### Trace
-Trace logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standard logger.
+logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standard logger.
 
 ```go
 package main
@@ -330,7 +330,7 @@ func main() {
 ```
 
 #### WithFields
-creates an entry from the standard logger and adds multiple fields to i
+creates an entry from the standard logger and adds multiple fields to it.
 
 ```go
 package main
@@ -369,7 +369,7 @@ func main() {
 ```
 
 #### WithTypeOf
-creates an entry from the standard logger and adds type and package information fields.
+creates an entry from the standard logger and adds type and package information to it.
 
 ```go
 package main
@@ -385,8 +385,7 @@ func main() {
 	s.Foo()
 }
 
-type S struct {
-}
+type S struct {}
 
 func (s *S) Foo() {
 	logger := log.WithTypeOf(s)
