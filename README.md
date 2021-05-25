@@ -1,5 +1,5 @@
 
-log
+log [![Go Reference](https://pkg.go.dev/badge/github.com/americanas-go/log.svg)](https://pkg.go.dev/github.com/americanas-go/log)
 =======
 
 A simple, fast and consistent way for instantianting and using your favorite logging library in Golang. By a few changes in your config you can change the version or switch to a different library in seconds.
