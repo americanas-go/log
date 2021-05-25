@@ -1,3 +1,6 @@
+// Package log provides a generic interface around loggers.
+//
+// The log package must be used in conjunction with a logger in contrib package.
 package log
 
 import (
@@ -5,7 +8,7 @@ import (
 	"io"
 )
 
-// Logger is our contract for the logger
+// Logger is our contract for the logger.
 type Logger interface {
 	Printf(format string, args ...interface{})
 
@@ -48,4 +51,6 @@ type Logger interface {
 	FromContext(ctx context.Context) Logger
 
 	Output() io.Writer
+
+	Fields() Fields
 }
