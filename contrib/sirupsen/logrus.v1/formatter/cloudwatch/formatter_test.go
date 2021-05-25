@@ -79,7 +79,7 @@ func (s *FormatterSuite) TestNewFormatter() {
 
 	for _, t := range tt {
 		s.Run(t.name, func() {
-			got := NewFormatter(t.opts...)
+			got := New(t.opts...)
 			want := t.want()
 			s.Assert().True(reflect.DeepEqual(got, want), "got  %v\nwant %v", got, want)
 		})
