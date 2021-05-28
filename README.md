@@ -457,7 +457,7 @@ func Foo(ctx context.Context) {
 
 Contributing
 --------
-Every help is always welcome. Fell free do throw us a pull request, we'll do our best to check it out as soon as possible. But before that, let us establish some guidelines:
+Every help is always welcome. Feel free do throw us a pull request, we'll do our best to check it out as soon as possible. But before that, let us establish some guidelines:
 
 1. This is an open source project so please do not add any proprietary code or infringe any copyright of any sort.
 2. Avoid unnecessary dependencies or messing up go.mod file.
