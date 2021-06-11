@@ -1,5 +1,5 @@
 
-log
+log [![Go Reference](https://pkg.go.dev/badge/github.com/americanas-go/log.svg)](https://pkg.go.dev/github.com/americanas-go/log)
 =======
 
 A simple, fast and consistent way for instantianting and using your favorite logging library in Golang. By a few changes in your config you can change the version or switch to a different library in seconds.
@@ -90,7 +90,7 @@ Logger
 Logger is the contract for the logging.
 
 #### Printf
-Printf logs a message at level Info (Logrus and Zap) and Debug (Zerolog) on the standard logger.
+logs a message at level Info (Logrus and Zap) and Debug (Zerolog) on the standard logger.
 
 ```go
 package main
@@ -106,7 +106,7 @@ func main() {
 ```
 
 #### Tracef
-Tracef logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standard logger.
+logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standard logger.
 
 ```go
 package main
@@ -122,7 +122,7 @@ func main() {
 ```
 
 #### Trace
-Trace logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standard logger.
+logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standard logger.
 
 ```go
 package main
@@ -330,7 +330,7 @@ func main() {
 ```
 
 #### WithFields
-creates an entry from the standard logger and adds multiple fields to i
+creates an entry from the standard logger and adds multiple fields to it.
 
 ```go
 package main
@@ -369,7 +369,7 @@ func main() {
 ```
 
 #### WithTypeOf
-creates an entry from the standard logger and adds type and package information fields.
+creates an entry from the standard logger and adds type and package information to it.
 
 ```go
 package main
@@ -385,8 +385,7 @@ func main() {
 	s.Foo()
 }
 
-type S struct {
-}
+type S struct {}
 
 func (s *S) Foo() {
 	logger := log.WithTypeOf(s)
@@ -458,7 +457,7 @@ func Foo(ctx context.Context) {
 
 Contributing
 --------
-Every help is always welcome. Fell free do throw us a pull request, we'll do our best to check it out as soon as possible. But before that, let us establish some guidelines:
+Every help is always welcome. Feel free do throw us a pull request, we'll do our best to check it out as soon as possible. But before that, let us establish some guidelines:
 
 1. This is an open source project so please do not add any proprietary code or infringe any copyright of any sort.
 2. Avoid unnecessary dependencies or messing up go.mod file.
