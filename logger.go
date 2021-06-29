@@ -44,6 +44,8 @@ type Logger interface {
 
 	WithField(key string, value interface{}) Logger
 
+	WithError(err error) Logger
+
 	WithTypeOf(obj interface{}) Logger
 
 	ToContext(ctx context.Context) context.Context

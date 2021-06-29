@@ -100,6 +100,11 @@ func WithField(key string, value string) Logger {
 	return l.WithField(key, value)
 }
 
+// WithError adds an error as a field to logger
+func WithError(err error) Logger {
+	return l.WithError(err)
+}
+
 // WithFields adds fields to logger.
 func WithFields(keyValues Fields) Logger {
 	return l.WithFields(keyValues)
