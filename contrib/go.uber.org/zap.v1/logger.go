@@ -352,10 +352,12 @@ func fieldsFromContext(ctx context.Context) log.Fields {
 }
 
 func mapToSlice(m log.Fields) []interface{} {
-	var f = make([]interface{}, 0)
+	f := make([]interface{}, 2*len(m))
+	i := 0
 	for k, v := range m {
-		f = append(f, k)
-		f = append(f, v)
+		f[i] = k
+		f[i+1] = v
+		i = i + 2
 	}
 
 	return f
