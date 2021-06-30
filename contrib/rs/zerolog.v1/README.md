@@ -71,6 +71,7 @@ default options:
 | FileMaxSize  | 100  |
 | FileCompress  | true  |
 | FileMaxAge  | 28  |
+| ErrorFieldName | "err" | 
 
 The package accepts a default constructor:
 ```go
@@ -182,4 +183,10 @@ sets the maximum number of days to retain old log files based on the timestamp e
 ```go
 // file max age
 logger := zerolog.NewLogger(zerolog.WithFileMaxAge(10))
+```
+
+##### WithErrorFieldName
+sets the field name used on `WithError`
+```go
+logger := zerolog.NewLogger(zerolog.WithErrorFieldName("error"))
 ```

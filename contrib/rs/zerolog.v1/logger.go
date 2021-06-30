@@ -26,6 +26,7 @@ const (
 	defaultFileMaxSize           = 100
 	defaultFileCompress          = true
 	defaultFileMaxAge            = 28
+	defaultErrorFieldName        = "err"
 )
 
 // NewLogger constructs a new Logger from provided variadic Option.
@@ -54,10 +55,19 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 	level := logLevel(options.Level)
 	zerologger = zerologger.Level(level)
 
+	// Default options are only applied if this is called via NewLogger
+	// If called direct, the options passed to this function may be empty.
+	// Hence the default is reinforced here.
+	errorField := options.ErrorFieldName
+	if errorField == "" {
+		errorField = defaultErrorFieldName
+	}
+
 	logger := &logger{
-		logger: zerologger,
-		writer: writer,
-		fields: log.Fields{},
+		logger:         zerologger,
+		writer:         writer,
+		fields:         log.Fields{},
+		errorFieldName: errorField,
 	}
 
 	log.NewLogger(logger)
@@ -66,8 +76,10 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 
 func defaultOptions() *Options {
 	return &Options{
-		Formatter: defaultFormatter,
-		Level:     defaultLevel,
+		Formatter:      defaultFormatter,
+		Level:          defaultLevel,
+		ErrorFieldName: defaultErrorFieldName,
+
 		Console: struct {
 			Enabled bool
 		}{
@@ -101,9 +113,10 @@ func options(option []Option) *Options {
 }
 
 type logger struct {
-	logger zerolog.Logger
-	writer io.Writer
-	fields log.Fields
+	logger         zerolog.Logger
+	writer         io.Writer
+	fields         log.Fields
+	errorFieldName string
 }
 
 func logLevel(level string) zerolog.Level {
@@ -256,12 +269,12 @@ func (l *logger) WithField(key string, value interface{}) log.Logger {
 	newField[key] = value
 
 	newLogger := l.logger.With().Fields(newField).Logger()
-	return &logger{newLogger, l.writer, newField}
+	return &logger{newLogger, l.writer, newField, l.errorFieldName}
 }
 
 func (l *logger) WithFields(fields log.Fields) log.Logger {
 	newLogger := l.logger.With().Fields(fields).Logger()
-	return &logger{newLogger, l.writer, fields}
+	return &logger{newLogger, l.writer, fields, l.errorFieldName}
 }
 
 func (l *logger) WithTypeOf(obj interface{}) log.Logger {
@@ -272,6 +285,10 @@ func (l *logger) WithTypeOf(obj interface{}) log.Logger {
 		"reflect.type.name":    t.Name(),
 		"reflect.type.package": t.PkgPath(),
 	})
+}
+
+func (l *logger) WithError(err error) log.Logger {
+	return l.WithField(l.errorFieldName, err.Error())
 }
 
 func (l *logger) Fields() log.Fields {
@@ -299,5 +316,5 @@ func (l *logger) FromContext(ctx context.Context) log.Logger {
 			fields = v
 		}
 	}
-	return &logger{*zerologger, l.writer, fields}
+	return &logger{*zerologger, l.writer, fields, l.errorFieldName}
 }

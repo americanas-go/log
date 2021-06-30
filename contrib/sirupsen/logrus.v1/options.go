@@ -3,8 +3,9 @@ package logrus
 import "github.com/sirupsen/logrus"
 
 type Options struct {
-	Formatter logrus.Formatter // formatter TEXT/JSON/CLOUDWATCH
-	Time      struct {
+	Formatter      logrus.Formatter // formatter TEXT/JSON/CLOUDWATCH
+	ErrorFieldName string           // define field name for error logging
+	Time           struct {
 		Format string // date and time formats
 	}
 	Console struct {
@@ -24,6 +25,12 @@ type Options struct {
 }
 
 type Option func(options *Options)
+
+func WithErrorFieldName(value string) Option {
+	return func(options *Options) {
+		options.ErrorFieldName = value
+	}
+}
 
 func WithFormatter(value logrus.Formatter) Option {
 	return func(options *Options) {

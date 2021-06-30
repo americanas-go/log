@@ -89,6 +89,12 @@ func (s *OptionsSuite) TestOptionsWithMethods() {
 			got:    func(o *Options) interface{} { return o.File.Formatter },
 			method: WithFileFormatter("TEXT"),
 		},
+		{
+			name:   "Options with custom error field name",
+			want:   "error",
+			got:    func(o *Options) interface{} { return o.ErrorFieldName },
+			method: WithErrorFieldName("error"),
+		},
 	}
 
 	for _, t := range tt {

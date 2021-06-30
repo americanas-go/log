@@ -29,6 +29,7 @@ const (
 	defaultFileCompress            = true
 	defaultFileMaxAge              = 28
 	defaultFileFormatter           = "TEXT"
+	defaultErrorFieldName          = "err"
 )
 
 // NewLogger constructs a new Logger from provided variadic Option.
@@ -75,11 +76,20 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 	// logged will always be the wrapped file. In our case zap.go
 	zaplogger := newSugaredLogger(combinedCore)
 
+	// Default options are only applied if this is called via NewLogger
+	// If called direct, the options passed to this function may be empty.
+	// Hence the default is reinforced here.
+	errorField := options.ErrorFieldName
+	if errorField == "" {
+		errorField = defaultErrorFieldName
+	}
+
 	newlogger := &zapLogger{
-		fields:        log.Fields{},
-		sugaredLogger: zaplogger,
-		writers:       writers,
-		core:          combinedCore,
+		fields:         log.Fields{},
+		sugaredLogger:  zaplogger,
+		writers:        writers,
+		core:           combinedCore,
+		errorFieldName: errorField,
 	}
 
 	log.NewLogger(newlogger)
@@ -88,6 +98,8 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 
 func defaultOptions() *Options {
 	return &Options{
+		ErrorFieldName: defaultErrorFieldName,
+
 		Console: struct {
 			Enabled   bool
 			Level     string
@@ -167,10 +179,11 @@ func logLevel(level string) zapcore.Level {
 }
 
 type zapLogger struct {
-	sugaredLogger *zap.SugaredLogger
-	fields        log.Fields
-	writers       []io.Writer
-	core          zapcore.Core
+	sugaredLogger  *zap.SugaredLogger
+	fields         log.Fields
+	writers        []io.Writer
+	core           zapcore.Core
+	errorFieldName string
 }
 
 // Printf uses (*zap.SugaredLogger).Infof to log a templated message.
@@ -229,7 +242,7 @@ func (l *zapLogger) WithField(key string, value interface{}) log.Logger {
 
 	f := mapToSlice(newFields)
 	newLogger := newSugaredLogger(l.core).With(f...)
-	return &zapLogger{newLogger, newFields, l.writers, l.core}
+	return &zapLogger{newLogger, newFields, l.writers, l.core, l.errorFieldName}
 }
 
 // Output returns a Writer that represents the zap writers.
@@ -281,7 +294,7 @@ func (l *zapLogger) WithFields(fields log.Fields) log.Logger {
 
 	f := mapToSlice(newFields)
 	newLogger := newSugaredLogger(l.core).With(f...)
-	return &zapLogger{newLogger, newFields, l.writers, l.core}
+	return &zapLogger{newLogger, newFields, l.writers, l.core, l.errorFieldName}
 }
 
 // WithTypeOf adds type and package information fields.
@@ -293,6 +306,10 @@ func (l *zapLogger) WithTypeOf(obj interface{}) log.Logger {
 		"reflect.type.name":    t.Name(),
 		"reflect.type.package": t.PkgPath(),
 	})
+}
+
+func (l *zapLogger) WithError(err error) log.Logger {
+	return l.WithField(l.errorFieldName, err.Error())
 }
 
 func (l *zapLogger) Fields() log.Fields {
@@ -335,10 +352,12 @@ func fieldsFromContext(ctx context.Context) log.Fields {
 }
 
 func mapToSlice(m log.Fields) []interface{} {
-	var f = make([]interface{}, 0)
+	f := make([]interface{}, 2*len(m))
+	i := 0
 	for k, v := range m {
-		f = append(f, k)
-		f = append(f, v)
+		f[i] = k
+		f[i+1] = v
+		i = i + 2
 	}
 
 	return f

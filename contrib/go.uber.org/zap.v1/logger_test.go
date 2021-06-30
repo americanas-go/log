@@ -4,6 +4,7 @@ import (
 	//"github.com/stretchr/testify/mock"
 
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -76,6 +77,17 @@ func (s *LoggerSuite) TestNewLogger() {
 				WithFileEnabled(true),
 			},
 		},
+		{
+			name: "New Logger with custom error field",
+			want: func() log.Logger {
+				opts := defaultOptions()
+				opts.ErrorFieldName = "error"
+				return NewLoggerWithOptions(opts)
+			},
+			opts: []Option{
+				WithErrorFieldName("error"),
+			},
+		},
 	}
 
 	for _, t := range tt {
@@ -91,7 +103,7 @@ func (s *LoggerSuite) TestNewLogger() {
 func loggersAreEqual(got log.Logger, want log.Logger) bool {
 	g := got.(*zapLogger)
 	w := want.(*zapLogger)
-	return reflect.DeepEqual(g.fields, w.fields) && reflect.DeepEqual(g.writers, w.writers)
+	return reflect.DeepEqual(g.fields, w.fields) && g.errorFieldName == w.errorFieldName && reflect.DeepEqual(g.writers, w.writers)
 }
 
 func (s *LoggerSuite) Test_getZapLevel() {
@@ -296,10 +308,11 @@ func buildLogger() *zapLogger {
 	core := zapcore.NewTee(coreconsole)
 	zaplogger := newSugaredLogger(core)
 	return &zapLogger{
-		fields:        log.Fields{},
-		sugaredLogger: zaplogger,
-		writers:       []io.Writer{writer},
-		core:          core,
+		fields:         log.Fields{},
+		sugaredLogger:  zaplogger,
+		writers:        []io.Writer{writer},
+		core:           core,
+		errorFieldName: "err",
 	}
 }
 
@@ -316,7 +329,7 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 				return l.WithField("ID", "1")
 			},
 			want: func() log.Logger {
-				return &zapLogger{l.sugaredLogger.With("ID", "1"), log.Fields{"ID": "1"}, l.writers, l.core}
+				return &zapLogger{l.sugaredLogger.With("ID", "1"), log.Fields{"ID": "1"}, l.writers, l.core, l.errorFieldName}
 			},
 		},
 		{
@@ -331,7 +344,7 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 				return &zapLogger{l.sugaredLogger.With("ID", "12", "Name", "Stockton"), log.Fields{
 					"ID":   "12",
 					"Name": "Stockton",
-				}, l.writers, l.core}
+				}, l.writers, l.core, l.errorFieldName}
 			},
 		},
 		{
@@ -352,8 +365,20 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 					},
 					l.writers,
 					l.core,
+					l.errorFieldName,
 				}
 				return l2
+			},
+		},
+		{
+			name: "logger WithError",
+			method: func() log.Logger {
+				return l.WithError(errors.New("something bad"))
+			},
+			want: func() log.Logger {
+				return &zapLogger{l.sugaredLogger.With("err", "something bad"), log.Fields{
+					"err": "something bad",
+				}, l.writers, l.core, l.errorFieldName}
 			},
 		},
 	}

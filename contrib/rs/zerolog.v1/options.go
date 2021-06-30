@@ -3,7 +3,8 @@ package zerolog
 type Options struct {
 	Formatter string // formatter TEXT/JSON
 	Level     string // log level
-	Console   struct {
+
+	Console struct {
 		Enabled bool // enable/disable console logging
 	}
 	File struct {
@@ -14,9 +15,17 @@ type Options struct {
 		Compress bool   // enabled/disable file compress
 		MaxAge   int    // file max age
 	}
+
+	ErrorFieldName string // define field name for error logging
 }
 
 type Option func(options *Options)
+
+func WithErrorFieldName(value string) Option {
+	return func(options *Options) {
+		options.ErrorFieldName = value
+	}
+}
 
 func WithFormatter(value string) Option {
 	return func(options *Options) {

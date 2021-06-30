@@ -73,6 +73,7 @@ default options:
 | FileCompress | true |
 | FileMaxAge | 28 |
 | TimeFormat | "2006/01/02 15:04:05.000" |
+| ErrorFieldName | "err" | 
 
 The package accepts a default constructor:
 ```go
@@ -219,4 +220,10 @@ sets the maximum number of days to retain old log files based on the timestamp e
 ```go
 // file max age
 logger := logrus.NewLogger(logrus.WithFileMaxAge(10))
+```
+
+##### WithErrorFieldName
+sets the field name used on `WithError`
+```go
+logger := logrus.NewLogger(logrus.WithErrorFieldName("error"))
 ```
