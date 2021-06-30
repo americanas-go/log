@@ -73,6 +73,7 @@ default options:
 | FileCompress  | true |
 | FileMaxAge  | 28 |
 | FileFormatter  | "TEXT" |
+| ErrorFieldName | "err" |
 
 The package accepts a default constructor:
 ```go
@@ -215,4 +216,10 @@ logger := zap.NewLogger(zap.WithFileFormatter("TEXT"))
 
 // json formatter
 logger := zap.NewLogger(zap.WithFileFormatter("JSON"))
+```
+
+##### WithErrorFieldName
+sets the field name used on `WithError`
+```go
+logger := zap.NewLogger(zap.WithErrorFieldName("error"))
 ```

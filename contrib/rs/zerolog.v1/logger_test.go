@@ -4,6 +4,7 @@ import (
 	//"github.com/stretchr/testify/mock"
 
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -88,6 +89,17 @@ func (s *LoggerSuite) TestNewLogger() {
 			opts: []Option{
 				WithConsoleEnabled(false),
 				WithFileEnabled(false),
+			},
+		},
+		{
+			name: "New Logger with custom error field",
+			want: func() log.Logger {
+				opts := defaultOptions()
+				opts.ErrorFieldName = "error"
+				return NewLoggerWithOptions(opts)
+			},
+			opts: []Option{
+				WithErrorFieldName("error"),
 			},
 		},
 	}
@@ -300,9 +312,10 @@ func TestLoggerMethod(t *testing.T) {
 
 func (s *LoggerSuite) TestLoggerWithMethods() {
 	l := &logger{
-		logger: zerolog.New(os.Stdout),
-		fields: log.Fields{},
-		writer: os.Stdout,
+		logger:         zerolog.New(os.Stdout),
+		fields:         log.Fields{},
+		writer:         os.Stdout,
+		errorFieldName: "err",
 	}
 	tt := []struct {
 		name   string
@@ -319,9 +332,10 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 					"ID": "1",
 				}
 				return &logger{
-					logger: zerolog.New(os.Stdout).With().Fields(fields).Logger(),
-					fields: log.Fields(fields),
-					writer: os.Stdout,
+					logger:         zerolog.New(os.Stdout).With().Fields(fields).Logger(),
+					fields:         log.Fields(fields),
+					writer:         os.Stdout,
+					errorFieldName: l.errorFieldName,
 				}
 			},
 		},
@@ -339,9 +353,10 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 					"Name": "Stockton",
 				}
 				return &logger{
-					logger: zerolog.New(os.Stdout).With().Fields(fields).Logger(),
-					fields: log.Fields(fields),
-					writer: os.Stdout,
+					logger:         zerolog.New(os.Stdout).With().Fields(fields).Logger(),
+					fields:         log.Fields(fields),
+					writer:         os.Stdout,
+					errorFieldName: l.errorFieldName,
 				}
 			},
 		},
@@ -357,9 +372,27 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 					"reflect.type.package": t.PkgPath(),
 				}
 				return &logger{
-					logger: zerolog.New(os.Stdout).With().Fields(fields).Logger(),
-					fields: log.Fields(fields),
-					writer: os.Stdout,
+					logger:         zerolog.New(os.Stdout).With().Fields(fields).Logger(),
+					fields:         log.Fields(fields),
+					writer:         os.Stdout,
+					errorFieldName: l.errorFieldName,
+				}
+			},
+		},
+		{
+			name: "logger WithError",
+			method: func() log.Logger {
+				return l.WithError(errors.New("something bad"))
+			},
+			want: func() log.Logger {
+				fields := map[string]interface{}{
+					"err": "something bad",
+				}
+				return &logger{
+					logger:         zerolog.New(os.Stdout).With().Fields(fields).Logger(),
+					fields:         log.Fields(fields),
+					writer:         os.Stdout,
+					errorFieldName: l.errorFieldName,
 				}
 			},
 		},

@@ -16,9 +16,17 @@ type Options struct {
 		MaxAge    int    // file max age
 		Formatter string // file formatter TEXT/JSON
 	}
+
+	ErrorFieldName string // define field name for error logging
 }
 
 type Option func(options *Options)
+
+func WithErrorFieldName(value string) Option {
+	return func(options *Options) {
+		options.ErrorFieldName = value
+	}
+}
 
 func WithConsoleEnabled(value bool) Option {
 	return func(options *Options) {

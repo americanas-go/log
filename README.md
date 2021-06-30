@@ -393,6 +393,23 @@ func (s *S) Foo() {
 }
 ```
 
+#### WithError
+creates an entry from the standard logger with the error content as a field.
+
+```go
+package main
+
+import (
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	logrus.NewLogger()
+	log.WithError(errors.New("something bad")).
+		Info("main method.")
+}
+```
+
 #### ToContext
 sends the state of the instance to the context.
 

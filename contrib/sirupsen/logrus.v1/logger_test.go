@@ -2,6 +2,7 @@ package logrus
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/syslog"
@@ -96,6 +97,17 @@ func (s *LoggerSuite) TestNewLogger() {
 				}),
 				WithConsoleEnabled(false),
 				WithFileEnabled(true),
+			},
+		},
+		{
+			name: "New Logger with custom error field",
+			want: func() log.Logger {
+				opts := defaultOptions()
+				opts.ErrorFieldName = "error"
+				return NewLoggerWithOptions(opts)
+			},
+			opts: []Option{
+				WithErrorFieldName("error"),
 			},
 		},
 	}
@@ -305,8 +317,9 @@ func TestLoggerMethod(t *testing.T) {
 
 func (s *LoggerSuite) TestLoggerWithMethods() {
 	l := &logger{
-		logger: logrus.New(),
-		fields: log.Fields{},
+		logger:         logrus.New(),
+		fields:         log.Fields{},
+		errorFieldName: "err",
 	}
 	tt := []struct {
 		name   string
@@ -363,6 +376,22 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 					fields: log.Fields{
 						"reflect.type.name":    t.Name(),
 						"reflect.type.package": t.PkgPath(),
+					}}
+				return l2
+			},
+		},
+		{
+			name: "logger WithError",
+			method: func() log.Logger {
+				return l.WithError(errors.New("something bad"))
+			},
+			want: func() log.Logger {
+				l2 := &logEntry{
+					entry: l.logger.WithFields(logrus.Fields{
+						"err": "something bad",
+					}),
+					fields: log.Fields{
+						"err": "something bad",
 					}}
 				return l2
 			},

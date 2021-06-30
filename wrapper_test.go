@@ -334,6 +334,22 @@ func (_m *LoggerMock) Warnf(format string, args ...interface{}) {
 	_m.Called(_ca...)
 }
 
+// WithError provides a mock function with given fields: err
+func (_m *LoggerMock) WithError(err error) Logger {
+	ret := _m.Called(err)
+
+	var r0 Logger
+	if rf, ok := ret.Get(0).(func(error) Logger); ok {
+		r0 = rf(err)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(Logger)
+		}
+	}
+
+	return r0
+}
+
 // WithField provides a mock function with given fields: key, value
 func (_m *LoggerMock) WithField(key string, value interface{}) Logger {
 	ret := _m.Called(key, value)

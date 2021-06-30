@@ -28,6 +28,7 @@ const (
 	defaultFileCompress          = true
 	defaultFileMaxAge            = 28
 	defaultTimeFormat            = "2006/01/02 15:04:05.000"
+	defaultErrorFieldName        = "err"
 )
 
 // NewLogger constructs a new Logger from provided variadic Option.
@@ -78,9 +79,18 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 
 	lLogger.SetFormatter(options.Formatter)
 
+	// Default options are only applied if this is called via NewLogger
+	// If called direct, the options passed to this function may be empty.
+	// Hence the default is reinforced here.
+	errorField := options.ErrorFieldName
+	if errorField == "" {
+		errorField = defaultErrorFieldName
+	}
+
 	logger := &logger{
-		logger: lLogger,
-		fields: log.Fields{},
+		logger:         lLogger,
+		fields:         log.Fields{},
+		errorFieldName: errorField,
 	}
 
 	log.NewLogger(logger)
@@ -89,7 +99,8 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 
 func defaultOptions() *Options {
 	return &Options{
-		Formatter: text.New(),
+		Formatter:      text.New(),
+		ErrorFieldName: defaultErrorFieldName,
 		Time: struct {
 			Format string
 		}{
@@ -154,8 +165,9 @@ func logLevel(level string) logrus.Level {
 }
 
 type logger struct {
-	logger *logrus.Logger
-	fields log.Fields
+	logger         *logrus.Logger
+	fields         log.Fields
+	errorFieldName string
 }
 
 func (l *logger) Trace(args ...interface{}) {
@@ -245,6 +257,10 @@ func (l *logger) WithTypeOf(obj interface{}) log.Logger {
 	})
 }
 
+func (l *logger) WithError(err error) log.Logger {
+	return l.WithField(l.errorFieldName, err.Error())
+}
+
 func (l *logger) Fields() log.Fields {
 	return l.fields
 }
@@ -263,8 +279,9 @@ func (l *logger) FromContext(ctx context.Context) log.Logger {
 }
 
 type logEntry struct {
-	entry  *logrus.Entry
-	fields log.Fields
+	entry          *logrus.Entry
+	fields         log.Fields
+	errorFieldName string
 }
 
 func (l *logEntry) Trace(args ...interface{}) {
@@ -300,8 +317,9 @@ func (l *logEntry) WithField(key string, value interface{}) log.Logger {
 	entry := l.entry.WithField(key, value)
 
 	return &logEntry{
-		entry:  entry,
-		fields: convertToFields(entry.Data),
+		entry:          entry,
+		fields:         convertToFields(entry.Data),
+		errorFieldName: l.errorFieldName,
 	}
 }
 
@@ -348,8 +366,9 @@ func (l *logEntry) Fatalf(format string, args ...interface{}) {
 func (l *logEntry) WithFields(fields log.Fields) log.Logger {
 	entry := l.entry.WithFields(convertToLogrusFields(fields))
 	return &logEntry{
-		entry:  entry,
-		fields: convertToFields(entry.Data),
+		entry:          entry,
+		fields:         convertToFields(entry.Data),
+		errorFieldName: l.errorFieldName,
 	}
 }
 
@@ -361,6 +380,10 @@ func (l *logEntry) WithTypeOf(obj interface{}) log.Logger {
 		"reflect.type.name":    t.Name(),
 		"reflect.type.package": t.PkgPath(),
 	})
+}
+
+func (l *logEntry) WithError(err error) log.Logger {
+	return l.WithField(l.errorFieldName, err.Error())
 }
 
 func (l *logEntry) ToContext(ctx context.Context) context.Context {
