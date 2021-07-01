@@ -2,6 +2,7 @@ package log
 
 import (
 	"context"
+	"errors"
 	"io"
 	"reflect"
 	"testing"
@@ -93,6 +94,13 @@ func (s *WrapperSuite) TestWrapperWrappedMethods() {
 			method: func() { WithField("key", "value") },
 		},
 		{
+			name: "WithError",
+			mock: func(l *LoggerMock) {
+				l.On("WithError", mock.Anything, mock.Anything).Times(1).Return(l)
+			},
+			method: func() { WithError(errors.New("something bad")) },
+		},
+		{
 			name: "WithFields",
 			mock: func(l *LoggerMock) {
 				l.On("WithFields", mock.Anything).Times(1).Return(l)
@@ -123,7 +131,7 @@ func (s *WrapperSuite) TestWrapperWrappedMethods() {
 			} else {
 				t.mock(l)
 			}
-			NewLogger(l)
+			SetGlobalLogger(l)
 			t.method()
 			l.AssertExpectations(s.T())
 		})
@@ -144,7 +152,7 @@ func (s *WrapperSuite) TestWrapperGetLogger() {
 
 	for _, t := range tt {
 		s.Run(t.name, func() {
-			NewLogger(t.want)
+			SetGlobalLogger(t.want)
 			got := GetLogger()
 			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
 		})

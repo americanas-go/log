@@ -85,6 +85,34 @@ func withoutContext() {
 }
 ```
 
+Global Logger
+--------
+The `americanas-go/log` provides top level logging function, however by default they do nothing (NoOp). You can define your global logger, after you instantiate the desired implementation, by using the `log.SetGlobalLogger`.
+
+```go
+package main
+
+import (
+	"context"
+
+	"github.com/americanas-go/log"
+
+	//"github.com/americanas-go/log/contrib/go.uber.org/zap.v1"
+	//"github.com/americanas-go/log/contrib/rs/zerolog.v1"
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
+)
+
+func main() {
+	//logger := zap.NewLogger()
+	//logger := zerolog.NewLogger()
+	logger := logrus.NewLogger()
+	log.SetGlobalLogger(logger)
+
+	log.Info("main method.")
+}
+```
+
+
 Logger
 --------
 Logger is the contract for the logging.

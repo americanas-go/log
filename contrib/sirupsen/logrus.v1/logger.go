@@ -93,7 +93,7 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 		errorFieldName: errorField,
 	}
 
-	log.NewLogger(logger)
+	log.SetGlobalLogger(logger)
 	return logger
 }
 

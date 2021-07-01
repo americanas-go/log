@@ -9,7 +9,7 @@ import (
 )
 
 func ExampleNewLogger() {
-	log.NewLogger(logrus.NewLogger(logrus.WithFormatter(text.New(text.WithDisableTimestamp(true)))))
+	log.SetGlobalLogger(logrus.NewLogger(logrus.WithFormatter(text.New(text.WithDisableTimestamp(true)))))
 	log.WithField("main_field", "example")
 	log.Info("main method.")
 	// Output: level=info msg="main method."
@@ -39,7 +39,7 @@ func ExampleToContext() {
 	}
 
 	ctx := context.Background()
-	log.NewLogger(logrus.NewLogger(
+	log.SetGlobalLogger(logrus.NewLogger(
 		logrus.WithFormatter(text.New(text.WithDisableTimestamp(true))),
 	).WithField("main_field", "example"))
 
@@ -79,7 +79,7 @@ func ExampleFromContext() {
 	}
 
 	ctx := context.Background()
-	log.NewLogger(logrus.NewLogger(
+	log.SetGlobalLogger(logrus.NewLogger(
 		logrus.WithFormatter(text.New(text.WithDisableTimestamp(true))),
 	).WithField("main_field", "example"))
 
