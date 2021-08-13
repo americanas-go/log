@@ -1,6 +1,8 @@
 
-log [![Go Reference](https://pkg.go.dev/badge/github.com/americanas-go/log.svg)](https://pkg.go.dev/github.com/americanas-go/log)
+log
 =======
+[![Go Reference](https://pkg.go.dev/badge/github.com/americanas-go/log.svg)](https://pkg.go.dev/github.com/americanas-go/log)
+[![changelog](https://camo.githubusercontent.com/4d89fc2186d69bdbb2c6ea6cb54ab16915be5e5e0b63a393e87a75741f1baa8c/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f6368616e67656c6f672d4348414e47454c4f472e6d642d253233453035373335)](CHANGELOG.md)
 
 A simple, fast and consistent way for instantianting and using your favorite logging library in Golang. By a few changes in your config you can change the version or switch to a different library in seconds.
 
@@ -369,9 +371,9 @@ import (
 )
 
 func main() {
-	
+
 	logrus.NewLogger()
-	
+
 	log.WithFields(log.Fields{
 		"hello": "world",
 		"foo":   "bar",
@@ -486,7 +488,7 @@ func main() {
 	ctx := context.Background()
 
 	logrus.NewLogger()
-	
+
 	logger := log.WithField("main_field", "example")
 	logger.Info("main method.")
 
