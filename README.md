@@ -459,8 +459,8 @@ func main() {
 }
 ```
 
-#### ToContext
-sends the state of the instance to the context.
+#### ToContext/FromContext
+sends and retrieves context instance state
 
 ```go
 package main
@@ -487,37 +487,6 @@ func main() {
 func Foo(ctx context.Context) {
 	logger := log.FromContext(ctx)
 	logger.Infof("%s method.", "main")
-}
-```
-
-#### FromContext
-returns a Logger from context.
-
-```go
-package main
-
-import (
-	"context"
-
-	"github.com/americanas-go/log"
-	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
-)
-
-func main() {
-	ctx := context.Background()
-
-	log.SetGlobalLogger(logrus.NewLogger())
-
-	logger := log.WithField("main_field", "example")
-	logger.Info("main method.")
-
-	ctx = logger.ToContext(ctx)
-	Foo(ctx)
-}
-
-func Foo(ctx context.Context) {
-	logger := log.FromContext(ctx)
-	logger.Infof("%s method.", "foo")
 }
 ```
 
