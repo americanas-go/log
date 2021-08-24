@@ -481,6 +481,7 @@ func main() {
 	logger.Info("main method.")
 
 	ctx = logger.ToContext(ctx)
+	Foo(ctx)
 
 }
 
