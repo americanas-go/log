@@ -18,9 +18,9 @@ func main() {
 	ctx := context.Background()
 
 	//example use logrus
-	logger := logrus.NewLogger()
+	log.SetGlobalLogger(logrus.NewLogger())
 
-	logger = logger.WithField("main_field", "example")
+	logger := log.WithField("main_field", "example")
 
 	logger.Info("main method.")
 	//output: INFO[2021/05/14 17:15:04.757] main method. main_field=example
