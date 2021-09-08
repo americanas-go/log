@@ -32,7 +32,7 @@ func (s *OptionsSuite) TestOptionsWithMethods() {
 		{
 			name:   "Options with level",
 			want:   "TRACE",
-			got:    func(o *Options) interface{} { return o.Level },
+			got:    func(o *Options) interface{} { return o.Console.Level },
 			method: WithLevel("TRACE"),
 		},
 		{

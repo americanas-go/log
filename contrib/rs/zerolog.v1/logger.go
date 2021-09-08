@@ -52,7 +52,7 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 	zerolog.LevelFieldName = "log_level"
 
 	zerologger := zerolog.New(writer).With().Timestamp().Logger()
-	level := logLevel(options.Level)
+	level := logLevel(options.Console.Level)
 	zerologger = zerologger.Level(level)
 
 	// Default options are only applied if this is called via NewLogger
@@ -76,13 +76,15 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 
 func defaultOptions() *Options {
 	return &Options{
-		Formatter:      defaultFormatter,
-		Level:          defaultLevel,
+		Formatter: defaultFormatter,
+
 		ErrorFieldName: defaultErrorFieldName,
 
 		Console: struct {
+			Level   string
 			Enabled bool
 		}{
+			Level:   defaultLevel,
 			Enabled: defaultConsoleEnabled,
 		},
 		File: struct {

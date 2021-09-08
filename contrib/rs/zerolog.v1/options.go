@@ -2,10 +2,11 @@ package zerolog
 
 type Options struct {
 	Formatter string // formatter TEXT/JSON
-	Level     string // log level
 
 	Console struct {
-		Enabled bool // enable/disable console logging
+		Level   string // log level
+		Enabled bool   // enable/disable console logging
+
 	}
 	File struct {
 		Enabled  bool   // enable/disable file logging
@@ -41,7 +42,7 @@ func WithConsoleEnabled(value bool) Option {
 
 func WithLevel(value string) Option {
 	return func(options *Options) {
-		options.Level = value
+		options.Console.Level = value
 	}
 }
 
