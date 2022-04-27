@@ -3,6 +3,7 @@ package zap
 import (
 	//"github.com/stretchr/testify/mock"
 
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -27,6 +28,7 @@ func TestLoggerSuite(t *testing.T) {
 }
 
 func (s *LoggerSuite) TestNewLogger() {
+	buf := bytes.NewBuffer(nil)
 
 	tt := []struct {
 		name string
@@ -86,6 +88,23 @@ func (s *LoggerSuite) TestNewLogger() {
 			},
 			opts: []Option{
 				WithErrorFieldName("error"),
+			},
+		},
+		{
+			name: "New Logger with custom output",
+			want: func() log.Logger {
+				opts := defaultOptions()
+				opts.CustomOutput.Enabled = true
+				opts.CustomOutput.Formatter = "JSON"
+				opts.CustomOutput.Level = "TRACE"
+				opts.CustomOutput.Writer = buf
+				return NewLoggerWithOptions(opts)
+			},
+			opts: []Option{
+				WithCustomOutputEnabled(true),
+				WithCustomOutputFormatter("JSON"),
+				WithCustomOutputLevel("TRACE"),
+				WithCustomOutputWriter(buf),
 			},
 		},
 	}
@@ -185,76 +204,79 @@ func (s *LoggerSuite) TestLogger() {
 		{
 			name:   "logger Printf method",
 			method: "Printf",
-			want:   "info\treflect/value.go:337\tBlah",
+			want:   "info\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Trace method",
 			method: "Trace",
-			want:   "debug\treflect/value.go:337\tBlah",
+			want:   "debug\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Tracef method",
 			method: "Tracef",
-			want:   "debug\treflect/value.go:337\tBlah",
+			want:   "debug\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Debug method",
 			method: "Debug",
-			want:   "debug\treflect/value.go:337\tBlah",
+			want:   "debug\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Debugf method",
 			method: "Debugf",
-			want:   "debug\treflect/value.go:337\tBlah",
+			want:   "debug\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Info method",
 			method: "Info",
-			want:   "info\treflect/value.go:337\tBlah",
+			want:   "info\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Infof method",
 			method: "Infof",
-			want:   "info\treflect/value.go:337\tBlah",
+			want:   "info\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Warn method",
 			method: "Warn",
-			want:   "warn\treflect/value.go:337\tBlah",
+			want:   "warn\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Warnf method",
 			method: "Warnf",
-			want:   "warn\treflect/value.go:337\tBlah",
+			want:   "warn\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Error method",
 			method: "Error",
-			want:   "error\treflect/value.go:337\tBlah",
+			want:   "error\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Errorf method",
 			method: "Errorf",
-			want:   "error\treflect/value.go:337\tBlah",
+			want:   "error\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Panic method",
 			method: "Panic",
-			want:   "panic\treflect/value.go:337\tBlah",
+			want:   "panic\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Panicf method",
 			method: "Panicf",
-			want:   "panic\treflect/value.go:337\tBlah",
+			want:   "panic\treflect/value.go:339\tBlah",
 		},
 	}
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			defer func() {
-				recover() //for panic case
+				//for panic case
+				recover()
+
 				got := captureLog(w, r)
-				s.Assert().True(strings.Contains(got, t.want), "got %v\nmust contain %v", got, t.want)
+				s.Assert().Contains(got, t.want)
 			}()
+
 			m := reflect.ValueOf(logger).MethodByName(t.method)
 			m.Call([]reflect.Value{reflect.ValueOf("Blah")})
 		})
@@ -270,12 +292,12 @@ func (s *LoggerSuite) TestLoggerFatal() {
 		{
 			name:   "logger Fatal method",
 			method: "Fatal",
-			want:   "fatal\treflect/value.go:337\tBlah",
+			want:   "fatal\treflect/value.go:339\tBlah",
 		},
 		{
 			name:   "logger Fatalf method",
 			method: "Fatalf",
-			want:   "fatal\treflect/value.go:337\tBlah",
+			want:   "fatal\treflect/value.go:339\tBlah",
 		},
 	}
 	for _, t := range tt {

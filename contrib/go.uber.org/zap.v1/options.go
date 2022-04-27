@@ -1,5 +1,7 @@
 package zap
 
+import "io"
+
 type Options struct {
 	Console struct {
 		Enabled   bool   // enable/disable console logging
@@ -15,6 +17,12 @@ type Options struct {
 		Compress  bool   // enabled/disable file compress
 		MaxAge    int    // file max age
 		Formatter string // file formatter TEXT/JSON
+	}
+	CustomOutput struct {
+		Writer    io.Writer // custom output writer
+		Enabled   bool      // enable/disable custom output logging
+		Level     string    // custom output log level
+		Formatter string    // custom output formatter TEXT/JSON
 	}
 
 	ErrorFieldName string // define field name for error logging
@@ -91,5 +99,29 @@ func WithFileMaxAge(value int) Option {
 func WithFileFormatter(value string) Option {
 	return func(options *Options) {
 		options.File.Formatter = value
+	}
+}
+
+func WithCustomOutputWriter(value io.Writer) Option {
+	return func(options *Options) {
+		options.CustomOutput.Writer = value
+	}
+}
+
+func WithCustomOutputEnabled(value bool) Option {
+	return func(options *Options) {
+		options.CustomOutput.Enabled = value
+	}
+}
+
+func WithCustomOutputLevel(value string) Option {
+	return func(options *Options) {
+		options.CustomOutput.Level = value
+	}
+}
+
+func WithCustomOutputFormatter(value string) Option {
+	return func(options *Options) {
+		options.CustomOutput.Formatter = value
 	}
 }

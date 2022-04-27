@@ -306,7 +306,6 @@ func (s *LoggerSuite) TestLoggerFatal() {
 
 func TestLoggerMethod(t *testing.T) {
 	method := os.Getenv("LOGGER_TEST_METHOD")
-	fmt.Println("Blah")
 	if method == "" {
 		return
 	}
