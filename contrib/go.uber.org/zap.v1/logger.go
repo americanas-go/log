@@ -1,6 +1,7 @@
 package zap
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"os"
@@ -17,19 +18,26 @@ import (
 type ctxKey string
 
 const (
-	key                     ctxKey = "ctxfields"
-	defaultConsoleFormatter        = "TEXT"
-	defaultConsoleEnabled          = true
-	defaultConsoleLevel            = "INFO"
-	defaultFileEnabled             = false
-	defaultFileLevel               = "INFO"
-	defaultFilePath                = "/tmp"
-	defaultFileName                = "application.log"
-	defaultFileMaxSize             = 100
-	defaultFileCompress            = true
-	defaultFileMaxAge              = 28
-	defaultFileFormatter           = "TEXT"
-	defaultErrorFieldName          = "err"
+	key                          ctxKey = "ctxfields"
+	defaultConsoleFormatter             = "TEXT"
+	defaultConsoleEnabled               = true
+	defaultConsoleLevel                 = "INFO"
+	defaultFileEnabled                  = false
+	defaultFileLevel                    = "INFO"
+	defaultFilePath                     = "/tmp"
+	defaultFileName                     = "application.log"
+	defaultFileMaxSize                  = 100
+	defaultFileCompress                 = true
+	defaultFileMaxAge                   = 28
+	defaultFileFormatter                = "TEXT"
+	defaultCustomOutputEnabled          = false
+	defaultCustomOutputLevel            = "INFO"
+	defaultCustomOutputFormatter        = "TEXT"
+	defaultErrorFieldName               = "err"
+)
+
+var (
+	defaultCustomOutputWriter = bytes.NewBuffer(nil)
 )
 
 // NewLogger constructs a new Logger from provided variadic Option.
@@ -68,6 +76,14 @@ func NewLoggerWithOptions(options *Options) log.Logger {
 		corefile := zapcore.NewCore(getEncoder(options.File.Formatter), writer, level)
 		cores = append(cores, corefile)
 		writers = append(writers, lumber)
+	}
+
+	if options.CustomOutput.Enabled {
+		level := logLevel(options.CustomOutput.Level)
+		writer := zapcore.AddSync(options.CustomOutput.Writer)
+		coreCustomOutput := zapcore.NewCore(getEncoder(options.CustomOutput.Formatter), writer, level)
+		cores = append(cores, coreCustomOutput)
+		writers = append(writers, writer)
 	}
 
 	combinedCore := zapcore.NewTee(cores...)
@@ -126,6 +142,17 @@ func defaultOptions() *Options {
 			Compress:  defaultFileCompress,
 			MaxAge:    defaultFileMaxAge,
 			Formatter: defaultFileFormatter,
+		},
+		CustomOutput: struct {
+			Writer    io.Writer
+			Enabled   bool
+			Level     string
+			Formatter string
+		}{
+			Writer:    defaultCustomOutputWriter,
+			Enabled:   defaultCustomOutputEnabled,
+			Level:     defaultCustomOutputLevel,
+			Formatter: defaultCustomOutputFormatter,
 		},
 	}
 }
