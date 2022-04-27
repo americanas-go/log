@@ -1,7 +1,7 @@
 package zap
 
 import (
-	"reflect"
+	"bytes"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -95,6 +95,32 @@ func (s *OptionsSuite) TestOptionsWithMethods() {
 			got:    func(o *Options) interface{} { return o.ErrorFieldName },
 			method: WithErrorFieldName("error"),
 		},
+		{
+			name:   "Options with custom output writer",
+			want:   bytes.NewBuffer(nil),
+			got:    func(o *Options) interface{} { return o.CustomOutput.Writer },
+			method: WithCustomOutputWriter(bytes.NewBuffer(nil)),
+		},
+		{
+			name:   "Options with custom output enabled",
+			want:   true,
+			got:    func(o *Options) interface{} { return o.CustomOutput.Enabled },
+			method: WithCustomOutputEnabled(true),
+		},
+
+		{
+			name:   "Options with custom output level",
+			want:   "INFO",
+			got:    func(o *Options) interface{} { return o.CustomOutput.Level },
+			method: WithCustomOutputLevel("INFO"),
+		},
+
+		{
+			name:   "Options with custom output formatter",
+			want:   "JSON",
+			got:    func(o *Options) interface{} { return o.CustomOutput.Formatter },
+			method: WithCustomOutputFormatter("JSON"),
+		},
 	}
 
 	for _, t := range tt {
@@ -102,7 +128,7 @@ func (s *OptionsSuite) TestOptionsWithMethods() {
 			opts := defaultOptions()
 			t.method(opts)
 			got := t.got(opts)
-			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
+			s.Assert().EqualValues(t.want, got)
 		})
 	}
 }
