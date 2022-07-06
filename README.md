@@ -1,6 +1,8 @@
 
-log [![Go Reference](https://pkg.go.dev/badge/github.com/americanas-go/log.svg)](https://pkg.go.dev/github.com/americanas-go/log)
+log
 =======
+[![Go Reference](https://pkg.go.dev/badge/github.com/americanas-go/log.svg)](https://pkg.go.dev/github.com/americanas-go/log)
+[![changelog](https://camo.githubusercontent.com/4d89fc2186d69bdbb2c6ea6cb54ab16915be5e5e0b63a393e87a75741f1baa8c/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f6368616e67656c6f672d4348414e47454c4f472e6d642d253233453035373335)](CHANGELOG.md)
 
 A simple, fast and consistent way for instantianting and using your favorite logging library in Golang. By a few changes in your config you can change the version or switch to a different library in seconds.
 
@@ -124,12 +126,13 @@ logs a message at level Info (Logrus and Zap) and Debug (Zerolog) on the standar
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Printf("hello %s", "world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Printf("hello %s", "world")
 }
 ```
 
@@ -140,12 +143,13 @@ logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standa
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Tracef("hello %s", "world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Tracef("hello %s", "world")
 }
 ```
 
@@ -156,12 +160,13 @@ logs a message at level Trace (Logrus and Zerolog) and Debug (Zap) on the standa
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Trace("hello world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Trace("hello world")
 }
 ```
 
@@ -172,12 +177,13 @@ logs a message at level Debug on the standard logger.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Debugf("hello %s", "world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Debugf("hello %s", "world")
 }
 ```
 
@@ -188,12 +194,13 @@ logs a message at level Debug on the standard logger.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Debug("hello world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Debug("hello world")
 }
 ```
 
@@ -204,12 +211,13 @@ logs a message at level Info on the standard logger.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Infof("hello %s", "world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Infof("hello %s", "world")
 }
 ```
 
@@ -220,12 +228,13 @@ logs a message at level Info on the standard logger.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Info("hello world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Info("hello world")
 }
 ```
 
@@ -236,12 +245,13 @@ logs a message at level Warn on the standard logger.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Warnf("hello %s", "world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Warnf("hello %s", "world")
 }
 ```
 
@@ -252,12 +262,13 @@ logs a message at level Warn on the standard logger.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Warn("hello world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Warn("hello world")
 }
 ```
 
@@ -268,12 +279,13 @@ logs a message at level Error on the standard logger.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Errorf("hello %s", "world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Errorf("hello %s", "world")
 }
 ```
 
@@ -284,12 +296,13 @@ logs a message at level Error on the standard logger.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Error("hello world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Error("hello world")
 }
 ```
 
@@ -300,12 +313,13 @@ logs a message at level Fatal on the standard logger, then calls os.Exit(1).
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Fatalf("hello %s", "world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Fatalf("hello %s", "world")
 }
 ```
 
@@ -316,12 +330,13 @@ logs a message at level Fatal on the standard logger, then calls os.Exit(1).
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Fatal("hello world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Fatal("hello world")
 }
 ```
 
@@ -332,12 +347,13 @@ logs a message at level Panic on the standard logger.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Panicf("hello %s", "world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Panicf("hello %s", "world")
 }
 ```
 
@@ -348,12 +364,13 @@ logs a message at level Panic on the standard logger.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logger := logrus.NewLogger()
-	logger.Panic("hello world")
+	log.SetGlobalLogger(logrus.NewLogger())
+	log.Panic("hello world")
 }
 ```
 
@@ -369,9 +386,9 @@ import (
 )
 
 func main() {
-	
-	logrus.NewLogger()
-	
+
+	log.SetGlobalLogger(logrus.NewLogger())
+
 	log.WithFields(log.Fields{
 		"hello": "world",
 		"foo":   "bar",
@@ -386,11 +403,13 @@ creates an entry from the standard logger and adds a field to it.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logrus.NewLogger()
+	log.SetGlobalLogger(logrus.NewLogger())
+	
 	log.WithField("hello", "world").
 		Info("main method.")
 }
@@ -403,12 +422,13 @@ creates an entry from the standard logger and adds type and package information 
 package main
 
 import (
-	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 	"github.com/americanas-go/log"
+	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logrus.NewLogger()
+	log.SetGlobalLogger(logrus.NewLogger())
+	
 	s := S{}
 	s.Foo()
 }
@@ -428,18 +448,19 @@ creates an entry from the standard logger with the error content as a field.
 package main
 
 import (
+	"github.com/americanas-go/log"
 	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
 )
 
 func main() {
-	logrus.NewLogger()
+	log.SetGlobalLogger(logrus.NewLogger())
 	log.WithError(errors.New("something bad")).
 		Info("main method.")
 }
 ```
 
-#### ToContext
-sends the state of the instance to the context.
+#### ToContext/FromContext
+sends and retrieves context instance state
 
 ```go
 package main
@@ -454,49 +475,19 @@ import (
 func main() {
 	ctx := context.Background()
 
-	logrus.NewLogger()
+	log.SetGlobalLogger(logrus.NewLogger())
 
 	logger := log.WithField("main_field", "example")
 	logger.Info("main method.")
 
 	ctx = logger.ToContext(ctx)
+	Foo(ctx)
 
 }
 
 func Foo(ctx context.Context) {
 	logger := log.FromContext(ctx)
 	logger.Infof("%s method.", "main")
-}
-```
-
-#### FromContext
-returns a Logger from context.
-
-```go
-package main
-
-import (
-	"context"
-
-	"github.com/americanas-go/log"
-	"github.com/americanas-go/log/contrib/sirupsen/logrus.v1"
-)
-
-func main() {
-	ctx := context.Background()
-
-	logrus.NewLogger()
-	
-	logger := log.WithField("main_field", "example")
-	logger.Info("main method.")
-
-	ctx = logger.ToContext(ctx)
-	Foo(ctx)
-}
-
-func Foo(ctx context.Context) {
-	logger := log.FromContext(ctx)
-	logger.Infof("%s method.", "foo")
 }
 ```
 
