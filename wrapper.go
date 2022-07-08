@@ -157,7 +157,7 @@ func Fatalf(format string, args ...interface{}) {
 }
 
 // WithField adds a key and value to logger.
-func WithField(key string, value string) Logger {
+func WithField(key string, value interface{}) Logger {
 	mu.RLock()
 	defer mu.RUnlock()
 
