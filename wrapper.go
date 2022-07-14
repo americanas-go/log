@@ -113,7 +113,7 @@ func WithError(err error) Logger {
 }
 
 // WithFields adds fields to logger.
-func WithFields(keyValues Fields) Logger {
+func WithFields(keyValues map[string]interface{}) Logger {
 	return l.WithFields(keyValues)
 }
 

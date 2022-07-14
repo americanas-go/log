@@ -43,7 +43,7 @@ func (n Noop) Panicf(format string, args ...interface{}) {}
 
 func (n Noop) Panic(args ...interface{}) {}
 
-func (n Noop) WithFields(keyValues Fields) Logger { return n }
+func (n Noop) WithFields(keyValues map[string]interface{}) Logger { return n }
 
 func (n Noop) WithField(key string, value interface{}) Logger { return n }
 

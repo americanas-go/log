@@ -265,14 +265,14 @@ func (l *logger) Panic(args ...interface{}) {
 }
 
 func (l *logger) WithField(key string, value interface{}) log.Logger {
-	newField := log.Fields{}
+	newField := make(map[string]interface{})
 	newField[key] = value
 
 	newLogger := l.logger.With().Fields(newField).Logger()
 	return &logger{newLogger, l.writer, newField, l.errorFieldName}
 }
 
-func (l *logger) WithFields(fields log.Fields) log.Logger {
+func (l *logger) WithFields(fields map[string]interface{}) log.Logger {
 	newLogger := l.logger.With().Fields(fields).Logger()
 	return &logger{newLogger, l.writer, fields, l.errorFieldName}
 }
@@ -281,7 +281,7 @@ func (l *logger) WithTypeOf(obj interface{}) log.Logger {
 
 	t := reflect.TypeOf(obj)
 
-	return l.WithFields(log.Fields{
+	return l.WithFields(map[string]interface{}{
 		"reflect.type.name":    t.Name(),
 		"reflect.type.package": t.PkgPath(),
 	})
