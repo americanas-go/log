@@ -10,7 +10,9 @@ type Noop struct{}
 
 // NewNoop create a Noop Logger
 func NewNoop() Noop {
-	return Noop{}
+	i := Noop{}
+	SetGlobalLogger(i)
+	return i
 }
 
 func (n Noop) Printf(format string, args ...interface{}) {}
