@@ -240,7 +240,7 @@ func (l *logger) WithField(key string, value interface{}) log.Logger {
 	}
 }
 
-func (l *logger) WithFields(fields log.Fields) log.Logger {
+func (l *logger) WithFields(fields map[string]interface{}) log.Logger {
 	return &logEntry{
 		entry:  l.logger.WithFields(convertToLogrusFields(fields)),
 		fields: fields,
@@ -280,7 +280,7 @@ func (l *logger) FromContext(ctx context.Context) log.Logger {
 
 type logEntry struct {
 	entry          *logrus.Entry
-	fields         log.Fields
+	fields         map[string]interface{}
 	errorFieldName string
 }
 
@@ -363,7 +363,7 @@ func (l *logEntry) Fatalf(format string, args ...interface{}) {
 	l.entry.Fatalf(format, args...)
 }
 
-func (l *logEntry) WithFields(fields log.Fields) log.Logger {
+func (l *logEntry) WithFields(fields map[string]interface{}) log.Logger {
 	entry := l.entry.WithFields(convertToLogrusFields(fields))
 	return &logEntry{
 		entry:          entry,
@@ -430,7 +430,7 @@ func convertToLogrusFields(fields log.Fields) logrus.Fields {
 }
 
 func convertToFields(logrusFields logrus.Fields) log.Fields {
-	fields := log.Fields{}
+	fields := make(map[string]interface{})
 	for index, val := range logrusFields {
 		fields[index] = val
 	}

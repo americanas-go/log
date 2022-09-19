@@ -282,7 +282,7 @@ func (l *zapLogger) Panicf(format string, args ...interface{}) {
 }
 
 // WithFields constructs a new Logger with l.fields and the provided fields.
-func (l *zapLogger) WithFields(fields log.Fields) log.Logger {
+func (l *zapLogger) WithFields(fields map[string]interface{}) log.Logger {
 	newFields := log.Fields{}
 
 	for k, v := range l.fields {

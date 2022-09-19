@@ -1,7 +1,7 @@
 package zerolog
 
 import (
-	//"github.com/stretchr/testify/mock"
+	// "github.com/stretchr/testify/mock"
 
 	"context"
 	"errors"
@@ -257,7 +257,7 @@ func (s *LoggerSuite) TestLogger() {
 	for _, t := range tt {
 		s.Run(t.name, func() {
 			defer func() {
-				recover() //for panic case
+				recover() // for panic case
 				got := captureLog(w, r)
 				for _, w := range t.want {
 					s.Assert().True(strings.Contains(got, w), "got %v\nmust contain %v", got, w)
@@ -333,7 +333,7 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 				}
 				return &logger{
 					logger:         zerolog.New(os.Stdout).With().Fields(fields).Logger(),
-					fields:         log.Fields(fields),
+					fields:         fields,
 					writer:         os.Stdout,
 					errorFieldName: l.errorFieldName,
 				}
@@ -354,7 +354,7 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 				}
 				return &logger{
 					logger:         zerolog.New(os.Stdout).With().Fields(fields).Logger(),
-					fields:         log.Fields(fields),
+					fields:         fields,
 					writer:         os.Stdout,
 					errorFieldName: l.errorFieldName,
 				}
@@ -373,7 +373,7 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 				}
 				return &logger{
 					logger:         zerolog.New(os.Stdout).With().Fields(fields).Logger(),
-					fields:         log.Fields(fields),
+					fields:         fields,
 					writer:         os.Stdout,
 					errorFieldName: l.errorFieldName,
 				}
@@ -390,7 +390,7 @@ func (s *LoggerSuite) TestLoggerWithMethods() {
 				}
 				return &logger{
 					logger:         zerolog.New(os.Stdout).With().Fields(fields).Logger(),
-					fields:         log.Fields(fields),
+					fields:         fields,
 					writer:         os.Stdout,
 					errorFieldName: l.errorFieldName,
 				}

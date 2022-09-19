@@ -40,7 +40,7 @@ type Logger interface {
 
 	Panic(args ...interface{})
 
-	WithFields(keyValues Fields) Logger
+	WithFields(keyValues map[string]interface{}) Logger
 
 	WithField(key string, value interface{}) Logger
 
