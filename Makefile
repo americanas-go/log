@@ -1,12 +1,15 @@
-#!make
+.PHONY: check-upgrade-deps
+check-upgrade-deps:
+	go list -u -m all
 
-changelog: ## Autogenerate CHANGELOG.md
-	@docker run -t -v "$(shell pwd)":/app/ orhunp/git-cliff:latest --config cliff.toml --output CHANGELOG.md
+.PHONY: test-upgrade-deps
+test-upgrade-deps:
+	go get -t -u ./...
 
-help: ## Display this help screen
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-	awk 'BEGIN {FS = ":.*?## "}; \
-	{printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}' | \
-	sort
+.PHONY: upgrade-deps
+upgrade-deps:
+	go get -u ./...
 
-.PHONY: changelog help
+.PHONY: test
+test:
+	go test all
